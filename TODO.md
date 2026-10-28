@@ -18,13 +18,14 @@
 
 - [x] সার্ভার `IPINFO_API_TOKEN` environment variable থাকলে IPinfo Lite থেকে দেশ-স্তরের যাচাই করে; token browser-এ পাঠানো বা source/GitHub-এ রাখা হয় না।
 - [x] IPinfo Lite শুধু দেশ/মহাদেশ/ASN তথ্য দেয়; বিদ্যমান শহর, অঞ্চল ও আনুমানিক স্থানাঙ্কের provider অক্ষত থাকে।
-- [ ] Cloudflare Worker secret হিসেবে `IPINFO_API_TOKEN` যোগ করে live lookup যাচাই করতে হবে; Cloudflare account authorization/deployment এখনও করা হয়নি।
+- [ ] Worker publish হওয়ার পর `IPINFO_API_TOKEN`-কে Cloudflare Worker secret হিসেবে যোগ করে live lookup যাচাই করতে হবে; OAuth connected, কিন্তু deployment এখনও হয়নি।
 
 ## Cloudflare Workers hosting প্রস্তুতি
 
 - [x] Existing Node backend-এর API logic পুনর্ব্যবহার করে Cloudflare Worker entrypoint, Node HTTP adapter ও `public/` static-assets binding যোগ করা হয়েছে; সাধারণ Node server mode-ও রাখা হয়েছে।
 - [x] `/blog/<slug>` URL Cloudflare static asset-এর canonical path-এ rewrite হয়; local Wrangler runtime-এ homepage, blog, `/api/health`, `/api/geo`, unauthenticated admin denial ও 404 যাচাই হয়েছে।
-- [ ] Cloudflare account-এ Worker publish করতে আলাদা অনুমতি/authorization দরকার; কোনো deploy, custom-domain/DNS বা billing পরিবর্তন করা হয়নি।
+- [x] Wrangler OAuth login সফল; authenticated account ID dashboard link-এর সঙ্গে মিলেছে।
+- [ ] Workers Free/Paid status এখনও নিশ্চিত নয়: dashboard plans page loading-এ আটকে আছে এবং read-only entitlements-এ plan data আসেনি। Plan নিশ্চিত না হওয়া পর্যন্ত deploy হবে না; কোনো DNS বা billing পরিবর্তন করা হয়নি।
 
 ## Payment and fulfillment backend (অসম্পূর্ণ)
 
