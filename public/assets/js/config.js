@@ -1,4 +1,3 @@
 "use strict";
-
-window.NEXPROXY_SUPABASE_URL = "https://fzvxuhumtebqlpwqpkvt.supabase.co";
-window.NEXPROXY_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_gTCygTOFrZc9AnE6QOKAdw_SjPvlHMy";
+window.NEXPROXY_SUPABASE_URL = "https://mviohrcnkxodltwjqvyy.supabase.co";
+window.NEXPROXY_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_11NXDnWbGN15coE7_Yu1Hw_AiUWdool";

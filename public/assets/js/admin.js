@@ -11,7 +11,7 @@
    ========================================================= */
 
 const ADMIN_SUPABASE_URL =
-    "https://fzvxuhumtebqlpwqpkvt.supabase.co";
+    window.NEXPROXY_SUPABASE_URL;
 
 const ADMIN_LOGIN_VIEW_ID =
     "admin-login-view";

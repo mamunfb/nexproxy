@@ -4,12 +4,12 @@ const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
 const { URL } = require("node:url");
-const mysql = require("mysql2/promise");
+const { Pool } = require("pg");
 
 const PORT = Number(process.env.PORT || 3000);
 const PUBLIC_DIR = path.join(__dirname, "public");
-const SUPABASE_URL = process.env.NEXPROXY_SUPABASE_URL || "https://fzvxuhumtebqlpwqpkvt.supabase.co";
-const SUPABASE_KEY = process.env.NEXPROXY_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_gTCygTOFrZc9AnE6QOKAdw_SjPvlHMy";
+const SUPABASE_URL = process.env.NEXPROXY_SUPABASE_URL || "https://mviohrcnkxodltwjqvyy.supabase.co";
+const SUPABASE_KEY = process.env.NEXPROXY_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_11NXDnWbGN15coE7_Yu1Hw_AiUWdool";
 const MAX_BODY_BYTES = 128 * 1024;
 let pool = null;
 let databaseError = null;
@@ -94,37 +94,21 @@ async function detectCountry(req) {
 
 async function initializeDatabase() {
   if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not available.");
-  pool = mysql.createPool({ uri: process.env.DATABASE_URL, waitForConnections: true, connectionLimit: 5, ssl: { rejectUnauthorized: false } });
-  await pool.query(`CREATE TABLE IF NOT EXISTS blog_posts (
-    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    slug VARCHAR(160) NOT NULL UNIQUE,
-    title VARCHAR(220) NOT NULL,
-    category VARCHAR(100) NOT NULL,
-    read_time VARCHAR(40) NOT NULL,
-    excerpt VARCHAR(500) NOT NULL,
-    content MEDIUMTEXT NOT NULL,
-    published TINYINT(1) NOT NULL DEFAULT 1,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_blog_posts_published (published), INDEX idx_blog_posts_updated (updated_at)
-  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
-  await pool.query(`CREATE TABLE IF NOT EXISTS blog_comments (
-    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    post_id BIGINT UNSIGNED NOT NULL,
-    name VARCHAR(80) NOT NULL,
-    email VARCHAR(160) NULL,
-    content TEXT NOT NULL,
-    approved TINYINT(1) NOT NULL DEFAULT 0,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_blog_comments_post (post_id), INDEX idx_blog_comments_approved (approved),
-    CONSTRAINT fk_blog_comments_post FOREIGN KEY (post_id) REFERENCES blog_posts(id) ON DELETE CASCADE
-  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci`);
-  const [rows] = await pool.query("SELECT COUNT(*) AS count FROM blog_posts");
-  if (Number(rows[0].count) === 0) {
-    for (const post of seedPosts) await pool.execute("INSERT INTO blog_posts (slug, title, category, read_time, excerpt, content, published) VALUES (?, ?, ?, ?, ?, ?, 1)", [post.slug, post.title, post.category, post.read_time, post.excerpt, post.content]);
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false },
+    max: 5,
+    connectionTimeoutMillis: 10000,
+    idleTimeoutMillis: 30000
+  });
+  await pool.query("SELECT 1");
+  for (const post of seedPosts) {
+    await pool.query(
+      "INSERT INTO public.blog_posts (slug, title, category, read_time, excerpt, content, published) VALUES ($1, $2, $3, $4, $5, $6, TRUE) ON CONFLICT (slug) DO NOTHING",
+      [post.slug, post.title, post.category, post.read_time, post.excerpt, post.content]
+    );
   }
 }
-
 async function readRequestBody(req) {
   const chunks = []; let size = 0;
   for await (const chunk of req) { size += chunk.length; if (size > MAX_BODY_BYTES) throw new Error("Request body is too large."); chunks.push(chunk); }
@@ -144,13 +128,13 @@ async function requireAdmin(req) {
   return user;
 }
 async function findPost(slug, includeUnpublished = false) {
-  const [rows] = await pool.execute(`SELECT * FROM blog_posts WHERE slug = ? ${includeUnpublished ? "" : "AND published = 1"} LIMIT 1`, [slug]);
+  const { rows } = await pool.query(`SELECT * FROM public.blog_posts WHERE slug = $1 ${includeUnpublished ? "" : "AND published = TRUE"} LIMIT 1`, [slug]);
   return rows[0] || null;
 }
 function postInput(body) {
   const title = cleanText(body.title, 220), slug = normalizeSlug(body.slug || title), category = cleanText(body.category, 100) || "Proxy insights", readTime = cleanText(body.read_time, 40) || "5 min read", excerpt = cleanText(body.excerpt, 500), content = cleanText(body.content, 40000);
   if (title.length < 4 || !slug || excerpt.length < 10 || content.length < 3) throw Object.assign(new Error("Title, slug, excerpt, and content are required."), { status: 400 });
-  return { title, slug, category, readTime, excerpt, content, published: body.published === false ? 0 : 1 };
+  return { title, slug, category, readTime, excerpt, content, published: body.published !== false };
 }
 
 async function handleApi(req, res, url) {
@@ -159,13 +143,13 @@ async function handleApi(req, res, url) {
   if (!pool) return errorResponse(res, 503, databaseError?.message || "Blog storage is not ready.");
   if (req.method === "GET" && pathname === "/api/health") return jsonResponse(res, 200, { ok: true, database: true });
   if (req.method === "GET" && pathname === "/api/blog/posts") {
-    const [rows] = await pool.query("SELECT * FROM blog_posts WHERE published = 1 ORDER BY created_at DESC");
+    const { rows } = await pool.query("SELECT * FROM public.blog_posts WHERE published = TRUE ORDER BY created_at DESC");
     return jsonResponse(res, 200, { posts: rows.map(publicPost) });
   }
   const postMatch = pathname.match(/^\/api\/blog\/posts\/([a-z0-9-]+)$/);
   if (req.method === "GET" && postMatch) {
     const post = await findPost(postMatch[1]); if (!post) return errorResponse(res, 404, "Post not found.");
-    const [comments] = await pool.execute("SELECT id, name, content, created_at FROM blog_comments WHERE post_id = ? AND approved = 1 ORDER BY created_at DESC", [post.id]);
+    const { rows: comments } = await pool.query("SELECT id, name, content, created_at FROM public.blog_comments WHERE post_id = $1 AND approved = TRUE ORDER BY created_at DESC", [post.id]);
     return jsonResponse(res, 200, { post: publicPost(post), comments });
   }
   const commentMatch = pathname.match(/^\/api\/blog\/posts\/([a-z0-9-]+)\/comments$/);
@@ -175,35 +159,35 @@ async function handleApi(req, res, url) {
     if (name.length < 2) return errorResponse(res, 400, "Please enter your name.");
     if (content.length < 3) return errorResponse(res, 400, "Please enter a comment.");
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return errorResponse(res, 400, "Please enter a valid email or leave it blank.");
-    await pool.execute("INSERT INTO blog_comments (post_id, name, email, content, approved) VALUES (?, ?, ?, ?, 0)", [post.id, name, email, content]);
+    await pool.query("INSERT INTO public.blog_comments (post_id, name, email, content, approved) VALUES ($1, $2, $3, $4, FALSE)", [post.id, name, email, content]);
     return jsonResponse(res, 201, { message: "Thanks. Your comment is awaiting admin approval." });
   }
   const adminRoute = pathname === "/api/admin/blog/posts" || pathname === "/api/admin/blog/comments" || pathname.startsWith("/api/admin/blog/posts/") || pathname.startsWith("/api/admin/blog/comments/");
   if (adminRoute) await requireAdmin(req);
   if (req.method === "GET" && pathname === "/api/admin/blog/posts") {
-    const [rows] = await pool.query("SELECT * FROM blog_posts ORDER BY updated_at DESC"); return jsonResponse(res, 200, { posts: rows.map(publicPost) });
+    const { rows } = await pool.query("SELECT * FROM public.blog_posts ORDER BY updated_at DESC"); return jsonResponse(res, 200, { posts: rows.map(publicPost) });
   }
   if (req.method === "POST" && pathname === "/api/admin/blog/posts") {
     const data = postInput(await readRequestBody(req));
-    try { const [result] = await pool.execute("INSERT INTO blog_posts (slug, title, category, read_time, excerpt, content, published) VALUES (?, ?, ?, ?, ?, ?, ?)", [data.slug, data.title, data.category, data.readTime, data.excerpt, data.content, data.published]); const post = await findPost(data.slug, true); return jsonResponse(res, 201, { post: publicPost(post), id: result.insertId }); }
-    catch (error) { if (error.code === "ER_DUP_ENTRY") return errorResponse(res, 409, "That slug is already in use."); throw error; }
+    try { const { rows } = await pool.query("INSERT INTO public.blog_posts (slug, title, category, read_time, excerpt, content, published) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id", [data.slug, data.title, data.category, data.readTime, data.excerpt, data.content, data.published]); const post = await findPost(data.slug, true); return jsonResponse(res, 201, { post: publicPost(post), id: rows[0].id }); }
+    catch (error) { if (error.code === "23505") return errorResponse(res, 409, "That slug is already in use."); throw error; }
   }
   const adminPostMatch = pathname.match(/^\/api\/admin\/blog\/posts\/([0-9]+)$/);
   if (adminPostMatch && ["PUT", "DELETE"].includes(req.method)) {
     const id = Number(adminPostMatch[1]);
-    if (req.method === "DELETE") { await pool.execute("DELETE FROM blog_posts WHERE id = ?", [id]); return jsonResponse(res, 200, { ok: true }); }
+    if (req.method === "DELETE") { await pool.query("DELETE FROM public.blog_posts WHERE id = $1", [id]); return jsonResponse(res, 200, { ok: true }); }
     const data = postInput(await readRequestBody(req));
-    try { await pool.execute("UPDATE blog_posts SET slug = ?, title = ?, category = ?, read_time = ?, excerpt = ?, content = ?, published = ? WHERE id = ?", [data.slug, data.title, data.category, data.readTime, data.excerpt, data.content, data.published, id]); const [rows] = await pool.execute("SELECT * FROM blog_posts WHERE id = ? LIMIT 1", [id]); return rows[0] ? jsonResponse(res, 200, { post: publicPost(rows[0]) }) : errorResponse(res, 404, "Post not found."); }
-    catch (error) { if (error.code === "ER_DUP_ENTRY") return errorResponse(res, 409, "That slug is already in use."); throw error; }
+    try { await pool.query("UPDATE public.blog_posts SET slug = $1, title = $2, category = $3, read_time = $4, excerpt = $5, content = $6, published = $7, updated_at = NOW() WHERE id = $8", [data.slug, data.title, data.category, data.readTime, data.excerpt, data.content, data.published, id]); const { rows } = await pool.query("SELECT * FROM public.blog_posts WHERE id = $1 LIMIT 1", [id]); return rows[0] ? jsonResponse(res, 200, { post: publicPost(rows[0]) }) : errorResponse(res, 404, "Post not found."); }
+    catch (error) { if (error.code === "23505") return errorResponse(res, 409, "That slug is already in use."); throw error; }
   }
   if (req.method === "GET" && pathname === "/api/admin/blog/comments") {
-    const [rows] = await pool.query("SELECT c.id, c.name, c.email, c.content, c.approved, c.created_at, p.title AS post_title, p.slug AS post_slug FROM blog_comments c JOIN blog_posts p ON p.id = c.post_id ORDER BY c.created_at DESC"); return jsonResponse(res, 200, { comments: rows });
+    const { rows } = await pool.query("SELECT c.id, c.name, c.email, c.content, c.approved, c.created_at, p.title AS post_title, p.slug AS post_slug FROM public.blog_comments c JOIN public.blog_posts p ON p.id = c.post_id ORDER BY c.created_at DESC"); return jsonResponse(res, 200, { comments: rows });
   }
   const adminCommentMatch = pathname.match(/^\/api\/admin\/blog\/comments\/([0-9]+)$/);
   if (adminCommentMatch && ["PATCH", "DELETE"].includes(req.method)) {
     const id = Number(adminCommentMatch[1]);
-    if (req.method === "DELETE") { await pool.execute("DELETE FROM blog_comments WHERE id = ?", [id]); return jsonResponse(res, 200, { ok: true }); }
-    const body = await readRequestBody(req); await pool.execute("UPDATE blog_comments SET approved = ? WHERE id = ?", [body.approved ? 1 : 0, id]); return jsonResponse(res, 200, { ok: true });
+    if (req.method === "DELETE") { await pool.query("DELETE FROM public.blog_comments WHERE id = $1", [id]); return jsonResponse(res, 200, { ok: true }); }
+    const body = await readRequestBody(req); await pool.query("UPDATE public.blog_comments SET approved = $1 WHERE id = $2", [Boolean(body.approved), id]); return jsonResponse(res, 200, { ok: true });
   }
   return errorResponse(res, 404, "API route not found.");
 }

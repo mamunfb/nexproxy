@@ -8,6 +8,6 @@
     "check": "node --check server.js"
   },
   "dependencies": {
-    "mysql2": "^3.14.1"
+    "pg": "^8.23.1"
   }
 }

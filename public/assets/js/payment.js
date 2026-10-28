@@ -64,7 +64,7 @@ async function loadPaymentSettings() {
 
     try {
         const response = await fetch(
-            "https://fzvxuhumtebqlpwqpkvt.supabase.co/functions/v1/dynamic-action",
+            `${window.NEXPROXY_SUPABASE_URL}/functions/v1/dynamic-action`,
             {
                 method: "POST",
                 headers: {
@@ -157,7 +157,7 @@ async function uploadPaymentProof(
     );
 
     const response = await fetch(
-        "https://fzvxuhumtebqlpwqpkvt.supabase.co/functions/v1/dynamic-action",
+        `${window.NEXPROXY_SUPABASE_URL}/functions/v1/dynamic-action`,
         {
             method: "POST",
             headers: {
@@ -317,7 +317,7 @@ function initPaymentForm(orderData) {
                 }
 
                 const response = await fetch(
-                    "https://fzvxuhumtebqlpwqpkvt.supabase.co/functions/v1/dynamic-action",
+                    `${window.NEXPROXY_SUPABASE_URL}/functions/v1/dynamic-action`,
                     {
                         method: "POST",
 
