@@ -245,23 +245,97 @@ async function initCountryDetection() {
     const summary = document.querySelector("#summary-country");
     if (!select) return;
 
+    let detectedCountry = null;
     try {
         const response = await fetch("/api/geo", { headers: { Accept: "application/json" } });
-        const data = await response.json();
-        const country = String(data?.country || "Unknown").trim() || "Unknown";
-        const countryCode = String(data?.countryCode || "").trim().toUpperCase();
-        select.innerHTML = "";
-        const option = document.createElement("option");
-        option.value = country;
-        option.textContent = countryCode ? `${country} (${countryCode})` : country;
-        option.selected = true;
-        select.appendChild(option);
-        select.dataset.countryCode = countryCode;
-        if (summary) summary.textContent = option.textContent;
-    } catch (error) {
-        select.innerHTML = '<option value="Unknown" selected>Unknown</option>';
-        if (summary) summary.textContent = "Unknown";
+        if (response.ok) detectedCountry = normalizeDetectedCountry(await response.json());
+    } catch {
+        // The browser-side provider below can still detect country if the app API is unavailable.
     }
+
+    if (!detectedCountry) {
+        try {
+            detectedCountry = await detectCountryFromBrowser();
+        } catch (error) {
+            console.warn("Automatic country detection failed.", error);
+        }
+    }
+
+    if (select.value && select.value !== "Unknown") return;
+
+    if (!detectedCountry) {
+        useManualCountryInput(select, summary);
+        return;
+    }
+
+    const option = document.createElement("option");
+    option.value = detectedCountry.country;
+    option.textContent = detectedCountry.countryCode
+        ? `${detectedCountry.country} (${detectedCountry.countryCode})`
+        : detectedCountry.country;
+    option.selected = true;
+    select.replaceChildren(option);
+    select.dataset.countryCode = detectedCountry.countryCode;
+    if (summary) summary.textContent = option.textContent;
+}
+
+function normalizeDetectedCountry(data) {
+    if (!data || data.error) return null;
+
+    const countryCode = String(data.countryCode || data.country_code || "")
+        .trim()
+        .toUpperCase()
+        .match(/^[A-Z]{2}$/)?.[0] || "";
+    let country = String(data.country_name || data.country || "").trim();
+
+    if ((!country || /^(unknown|uncommon|n\/a)$/i.test(country) || country.toUpperCase() === countryCode) && countryCode) {
+        try {
+            const displayName = new Intl.DisplayNames(["en"], { type: "region" }).of(countryCode);
+            country = displayName && displayName !== countryCode ? displayName : countryCode;
+        } catch {
+            country = countryCode;
+        }
+    }
+
+    if (!country || /^(unknown|uncommon|n\/a)$/i.test(country)) return null;
+    return { country, countryCode };
+}
+
+async function detectCountryFromBrowser() {
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => controller.abort(), 5000);
+
+    try {
+        const response = await fetch("https://ipapi.co/json/", {
+            headers: { Accept: "application/json" },
+            signal: controller.signal
+        });
+        if (!response.ok) throw new Error("The country lookup provider is unavailable.");
+
+        const result = normalizeDetectedCountry(await response.json());
+        if (!result) throw new Error("The country lookup provider returned no country.");
+        return result;
+    } finally {
+        window.clearTimeout(timer);
+    }
+}
+
+function useManualCountryInput(select, summary) {
+    const input = document.createElement("input");
+    input.type = "text";
+    input.id = select.id;
+    input.name = select.name;
+    input.className = select.className;
+    input.required = select.required;
+    input.autocomplete = "country-name";
+    input.placeholder = "Enter your country";
+    input.setAttribute("aria-describedby", select.getAttribute("aria-describedby") || "country-help");
+    input.dataset.countryCode = "";
+    select.replaceWith(input);
+
+    const help = document.querySelector("#country-help");
+    if (help) help.textContent = "Automatic detection is unavailable. Enter your country manually.";
+    if (summary) summary.textContent = "Enter country";
 }
 
 function createLocalOrderId() {
@@ -456,17 +530,22 @@ function restoreSavedOrder() {
     }
 
     if (form.country && orderData.country) {
-        form.country.innerHTML = "";
-        const option = document.createElement("option");
-        option.value = orderData.country;
-        option.textContent = orderData.countryCode
-            ? `${orderData.country} (${orderData.countryCode})`
-            : orderData.country;
-        option.selected = true;
-        form.country.appendChild(option);
         form.country.dataset.countryCode = orderData.countryCode || "";
+        let countryLabel = orderData.country;
+        if (form.country instanceof HTMLSelectElement) {
+            const option = document.createElement("option");
+            option.value = orderData.country;
+            option.textContent = orderData.countryCode
+                ? `${orderData.country} (${orderData.countryCode})`
+                : orderData.country;
+            option.selected = true;
+            form.country.replaceChildren(option);
+            countryLabel = option.textContent;
+        } else {
+            form.country.value = orderData.country;
+        }
         const summaryCountry = document.querySelector("#summary-country");
-        if (summaryCountry) summaryCountry.textContent = option.textContent;
+        if (summaryCountry) summaryCountry.textContent = countryLabel;
     }
 
     if (form.termsConsent) {
