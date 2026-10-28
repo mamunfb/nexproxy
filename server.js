@@ -4,14 +4,13 @@ const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
 const { URL } = require("node:url");
-const { Pool } = require("pg");
 
 const PORT = Number(process.env.PORT || 3000);
 const PUBLIC_DIR = path.join(__dirname, "public");
 const SUPABASE_URL = process.env.NEXPROXY_SUPABASE_URL || "https://mviohrcnkxodltwjqvyy.supabase.co";
 const SUPABASE_KEY = process.env.NEXPROXY_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_11NXDnWbGN15coE7_Yu1Hw_AiUWdool";
 const MAX_BODY_BYTES = 128 * 1024;
-let pool = null;
+let databaseReady = false;
 let databaseError = null;
 
 const seedPosts = [
@@ -93,21 +92,28 @@ async function detectCountry(req) {
 }
 
 async function initializeDatabase() {
-  if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not available.");
-  pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false },
-    max: 5,
-    connectionTimeoutMillis: 10000,
-    idleTimeoutMillis: 30000
-  });
-  await pool.query("SELECT 1");
-  for (const post of seedPosts) {
-    await pool.query(
-      "INSERT INTO public.blog_posts (slug, title, category, read_time, excerpt, content, published) VALUES ($1, $2, $3, $4, $5, $6, TRUE) ON CONFLICT (slug) DO NOTHING",
-      [post.slug, post.title, post.category, post.read_time, post.excerpt, post.content]
-    );
+  const result = await supabaseRequest(null, "blog_posts", { select: "id", limit: "1" });
+  if (!Array.isArray(result)) throw new Error("Supabase blog API returned an unexpected response.");
+  databaseReady = true;
+}
+
+async function supabaseRequest(req, resource, query = {}, method = "GET", body = null, prefer = "") {
+  const url = new URL(`${SUPABASE_URL}/rest/v1/${resource}`);
+  for (const [key, value] of Object.entries(query)) url.searchParams.set(key, String(value));
+  const headers = { apikey: SUPABASE_KEY, Accept: "application/json" };
+  const token = req ? bearerToken(req) : "";
+  if (token) headers.Authorization = `Bearer ${token}`;
+  if (body !== null) headers["Content-Type"] = "application/json";
+  if (prefer) headers.Prefer = prefer;
+  const response = await fetch(url, { method, headers, body: body === null ? undefined : JSON.stringify(body) });
+  const text = await response.text();
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+  if (!response.ok) {
+    const message = typeof data === "object" && data ? data.message || data.error || data.hint : "Supabase request failed.";
+    throw Object.assign(new Error(message || "Supabase request failed."), { status: response.status, code: data?.code });
   }
+  return data;
 }
 async function readRequestBody(req) {
   const chunks = []; let size = 0;
@@ -127,8 +133,10 @@ async function requireAdmin(req) {
   if (!adminResponse.ok || isAdmin !== true) throw Object.assign(new Error("Administrator access is required."), { status: 403 });
   return user;
 }
-async function findPost(slug, includeUnpublished = false) {
-  const { rows } = await pool.query(`SELECT * FROM public.blog_posts WHERE slug = $1 ${includeUnpublished ? "" : "AND published = TRUE"} LIMIT 1`, [slug]);
+async function findPost(req, slug, includeUnpublished = false) {
+  const query = { select: "*", slug: `eq.${slug}`, limit: "1" };
+  if (!includeUnpublished) query.published = "eq.true";
+  const rows = await supabaseRequest(req, "blog_posts", query);
   return rows[0] || null;
 }
 function postInput(body) {
@@ -140,58 +148,73 @@ function postInput(body) {
 async function handleApi(req, res, url) {
   const pathname = url.pathname;
   if (req.method === "GET" && pathname === "/api/geo") return jsonResponse(res, 200, await detectCountry(req));
-  if (!pool) return errorResponse(res, 503, databaseError?.message || "Blog storage is not ready.");
+  if (!databaseReady) return errorResponse(res, 503, databaseError?.message || "Blog storage is not ready.");
   if (req.method === "GET" && pathname === "/api/health") return jsonResponse(res, 200, { ok: true, database: true });
   if (req.method === "GET" && pathname === "/api/blog/posts") {
-    const { rows } = await pool.query("SELECT * FROM public.blog_posts WHERE published = TRUE ORDER BY created_at DESC");
-    return jsonResponse(res, 200, { posts: rows.map(publicPost) });
+    const posts = await supabaseRequest(req, "blog_posts", { select: "*", published: "eq.true", order: "created_at.desc" });
+    return jsonResponse(res, 200, { posts: posts.map(publicPost) });
   }
   const postMatch = pathname.match(/^\/api\/blog\/posts\/([a-z0-9-]+)$/);
   if (req.method === "GET" && postMatch) {
-    const post = await findPost(postMatch[1]); if (!post) return errorResponse(res, 404, "Post not found.");
-    const { rows: comments } = await pool.query("SELECT id, name, content, created_at FROM public.blog_comments WHERE post_id = $1 AND approved = TRUE ORDER BY created_at DESC", [post.id]);
+    const post = await findPost(req, postMatch[1]);
+    if (!post) return errorResponse(res, 404, "Post not found.");
+    const comments = await supabaseRequest(req, "blog_comments", { select: "id,name,content,created_at", post_id: `eq.${post.id}`, approved: "eq.true", order: "created_at.desc" });
     return jsonResponse(res, 200, { post: publicPost(post), comments });
   }
   const commentMatch = pathname.match(/^\/api\/blog\/posts\/([a-z0-9-]+)\/comments$/);
   if (req.method === "POST" && commentMatch) {
-    const post = await findPost(commentMatch[1]); if (!post) return errorResponse(res, 404, "Post not found.");
+    const post = await findPost(req, commentMatch[1]);
+    if (!post) return errorResponse(res, 404, "Post not found.");
     const body = await readRequestBody(req), name = cleanText(body.name, 80), email = cleanText(body.email, 160) || null, content = cleanText(body.content, 2000);
     if (name.length < 2) return errorResponse(res, 400, "Please enter your name.");
     if (content.length < 3) return errorResponse(res, 400, "Please enter a comment.");
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return errorResponse(res, 400, "Please enter a valid email or leave it blank.");
-    await pool.query("INSERT INTO public.blog_comments (post_id, name, email, content, approved) VALUES ($1, $2, $3, $4, FALSE)", [post.id, name, email, content]);
+    await supabaseRequest(req, "blog_comments", { select: "id" }, "POST", { post_id: post.id, name, email, content, approved: false }, "return=minimal");
     return jsonResponse(res, 201, { message: "Thanks. Your comment is awaiting admin approval." });
   }
   const adminRoute = pathname === "/api/admin/blog/posts" || pathname === "/api/admin/blog/comments" || pathname.startsWith("/api/admin/blog/posts/") || pathname.startsWith("/api/admin/blog/comments/");
   if (adminRoute) await requireAdmin(req);
   if (req.method === "GET" && pathname === "/api/admin/blog/posts") {
-    const { rows } = await pool.query("SELECT * FROM public.blog_posts ORDER BY updated_at DESC"); return jsonResponse(res, 200, { posts: rows.map(publicPost) });
+    const posts = await supabaseRequest(req, "blog_posts", { select: "*", order: "updated_at.desc" });
+    return jsonResponse(res, 200, { posts: posts.map(publicPost) });
   }
   if (req.method === "POST" && pathname === "/api/admin/blog/posts") {
     const data = postInput(await readRequestBody(req));
-    try { const { rows } = await pool.query("INSERT INTO public.blog_posts (slug, title, category, read_time, excerpt, content, published) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id", [data.slug, data.title, data.category, data.readTime, data.excerpt, data.content, data.published]); const post = await findPost(data.slug, true); return jsonResponse(res, 201, { post: publicPost(post), id: rows[0].id }); }
-    catch (error) { if (error.code === "23505") return errorResponse(res, 409, "That slug is already in use."); throw error; }
+    try {
+      const rows = await supabaseRequest(req, "blog_posts", { select: "*" }, "POST", { slug: data.slug, title: data.title, category: data.category, read_time: data.readTime, excerpt: data.excerpt, content: data.content, published: data.published }, "return=representation");
+      return jsonResponse(res, 201, { post: publicPost(rows[0]), id: rows[0].id });
+    } catch (error) { if (error.code === "23505") return errorResponse(res, 409, "That slug is already in use."); throw error; }
   }
   const adminPostMatch = pathname.match(/^\/api\/admin\/blog\/posts\/([0-9]+)$/);
   if (adminPostMatch && ["PUT", "DELETE"].includes(req.method)) {
-    const id = Number(adminPostMatch[1]);
-    if (req.method === "DELETE") { await pool.query("DELETE FROM public.blog_posts WHERE id = $1", [id]); return jsonResponse(res, 200, { ok: true }); }
+    const id = adminPostMatch[1];
+    if (req.method === "DELETE") {
+      await supabaseRequest(req, "blog_posts", { id: `eq.${id}` }, "DELETE", null, "return=minimal");
+      return jsonResponse(res, 200, { ok: true });
+    }
     const data = postInput(await readRequestBody(req));
-    try { await pool.query("UPDATE public.blog_posts SET slug = $1, title = $2, category = $3, read_time = $4, excerpt = $5, content = $6, published = $7, updated_at = NOW() WHERE id = $8", [data.slug, data.title, data.category, data.readTime, data.excerpt, data.content, data.published, id]); const { rows } = await pool.query("SELECT * FROM public.blog_posts WHERE id = $1 LIMIT 1", [id]); return rows[0] ? jsonResponse(res, 200, { post: publicPost(rows[0]) }) : errorResponse(res, 404, "Post not found."); }
-    catch (error) { if (error.code === "23505") return errorResponse(res, 409, "That slug is already in use."); throw error; }
+    try {
+      const rows = await supabaseRequest(req, "blog_posts", { id: `eq.${id}`, select: "*" }, "PATCH", { slug: data.slug, title: data.title, category: data.category, read_time: data.readTime, excerpt: data.excerpt, content: data.content, published: data.published, updated_at: new Date().toISOString() }, "return=representation");
+      return rows[0] ? jsonResponse(res, 200, { post: publicPost(rows[0]) }) : errorResponse(res, 404, "Post not found.");
+    } catch (error) { if (error.code === "23505") return errorResponse(res, 409, "That slug is already in use."); throw error; }
   }
   if (req.method === "GET" && pathname === "/api/admin/blog/comments") {
-    const { rows } = await pool.query("SELECT c.id, c.name, c.email, c.content, c.approved, c.created_at, p.title AS post_title, p.slug AS post_slug FROM public.blog_comments c JOIN public.blog_posts p ON p.id = c.post_id ORDER BY c.created_at DESC"); return jsonResponse(res, 200, { comments: rows });
+    const comments = await supabaseRequest(req, "blog_comments", { select: "id,name,email,content,approved,created_at,post:blog_posts(title,slug)", order: "created_at.desc" });
+    return jsonResponse(res, 200, { comments: comments.map((comment) => ({ ...comment, post_title: comment.post?.title || "", post_slug: comment.post?.slug || "" })) });
   }
   const adminCommentMatch = pathname.match(/^\/api\/admin\/blog\/comments\/([0-9]+)$/);
   if (adminCommentMatch && ["PATCH", "DELETE"].includes(req.method)) {
-    const id = Number(adminCommentMatch[1]);
-    if (req.method === "DELETE") { await pool.query("DELETE FROM public.blog_comments WHERE id = $1", [id]); return jsonResponse(res, 200, { ok: true }); }
-    const body = await readRequestBody(req); await pool.query("UPDATE public.blog_comments SET approved = $1 WHERE id = $2", [Boolean(body.approved), id]); return jsonResponse(res, 200, { ok: true });
+    const id = adminCommentMatch[1];
+    if (req.method === "DELETE") {
+      await supabaseRequest(req, "blog_comments", { id: `eq.${id}` }, "DELETE", null, "return=minimal");
+      return jsonResponse(res, 200, { ok: true });
+    }
+    const body = await readRequestBody(req);
+    await supabaseRequest(req, "blog_comments", { id: `eq.${id}` }, "PATCH", { approved: Boolean(body.approved) }, "return=minimal");
+    return jsonResponse(res, 200, { ok: true });
   }
   return errorResponse(res, 404, "API route not found.");
 }
-
 function contentType(filePath) { return ({ ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "application/javascript; charset=utf-8", ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png", ".ico": "image/x-icon", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp" })[path.extname(filePath).toLowerCase()] || "application/octet-stream"; }
 function safeFilePath(requestPath) { const candidate = path.resolve(PUBLIC_DIR, `.${decodeURIComponent(requestPath)}`); return candidate.startsWith(`${PUBLIC_DIR}${path.sep}`) || candidate === PUBLIC_DIR ? candidate : null; }
 async function serveStatic(req, res, url) {
@@ -210,4 +233,4 @@ const server = http.createServer(async (req, res) => {
   catch (error) { console.error("Request error:", error); errorResponse(res, error.status || 500, error.status ? error.message : "Internal server error."); }
 });
 initializeDatabase().catch((error) => { databaseError = error; console.error("Database initialization failed:", error.message); }).finally(() => server.listen(PORT, "0.0.0.0", () => console.log(`NexProxy server listening on 0.0.0.0:${PORT}`)));
-process.on("SIGTERM", async () => { if (pool) await pool.end().catch(() => {}); server.close(() => process.exit(0)); });
+process.on("SIGTERM", async () => { server.close(() => process.exit(0)); });
