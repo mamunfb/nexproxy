@@ -9,6 +9,7 @@ const PORT = Number(process.env.PORT || 3000);
 const PUBLIC_DIR = path.join(__dirname, "public");
 const SUPABASE_URL = process.env.NEXPROXY_SUPABASE_URL || "https://mviohrcnkxodltwjqvyy.supabase.co";
 const SUPABASE_KEY = process.env.NEXPROXY_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_11NXDnWbGN15coE7_Yu1Hw_AiUWdool";
+const IPINFO_API_TOKEN = String(process.env.IPINFO_API_TOKEN || "").trim();
 const MAX_BODY_BYTES = 128 * 1024;
 let databaseReady = false;
 let databaseError = null;
@@ -68,14 +69,37 @@ function countryFromHeaders(req) {
   return String(value || "").trim().toUpperCase().match(/^[A-Z]{2}$/)?.[0] || "";
 }
 
+async function lookupIpinfoLite(ip) {
+  if (!IPINFO_API_TOKEN) return null;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 2500);
+  try {
+    const endpoint = new URL(`https://api.ipinfo.io/lite/${encodeURIComponent(ip)}`);
+    endpoint.searchParams.set("token", IPINFO_API_TOKEN);
+    const response = await fetch(endpoint, { signal: controller.signal, headers: { Accept: "application/json" } });
+    if (!response.ok) return null;
+    const data = await response.json().catch(() => null);
+    const countryCode = String(data?.country_code || "").trim().toUpperCase().match(/^[A-Z]{2}$/)?.[0] || "";
+    if (!countryCode) return null;
+    return { countryCode, country: String(data?.country || countryCode).trim() || countryCode, source: "ipinfo-lite" };
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function detectCountry(req) {
   const headerCode = countryFromHeaders(req);
-  if (headerCode) return { countryCode: headerCode, country: headerCode };
+  if (headerCode) return { countryCode: headerCode, country: headerCode, source: "hosting-header" };
 
   const ip = clientIp(req);
   if (!ip || ip === "::1" || ip.startsWith("127.") || ip.startsWith("10.") || ip.startsWith("192.168.")) {
-    return { countryCode: "", country: "Unknown" };
+    return { countryCode: "", country: "Unknown", source: "none" };
   }
+
+  const ipinfoResult = await lookupIpinfoLite(ip);
+  if (ipinfoResult) return ipinfoResult;
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 2500);
@@ -83,9 +107,9 @@ async function detectCountry(req) {
     const response = await fetch(`https://ipapi.co/${encodeURIComponent(ip)}/json/`, { signal: controller.signal, headers: { Accept: "application/json" } });
     const data = await response.json().catch(() => null);
     const countryCode = String(data?.country_code || "").trim().toUpperCase().match(/^[A-Z]{2}$/)?.[0] || "";
-    return { countryCode, country: String(data?.country_name || countryCode || "Unknown").trim() || "Unknown" };
+    return { countryCode, country: String(data?.country_name || countryCode || "Unknown").trim() || "Unknown", source: "ipapi" };
   } catch {
-    return { countryCode: "", country: "Unknown" };
+    return { countryCode: "", country: "Unknown", source: "none" };
   } finally {
     clearTimeout(timer);
   }

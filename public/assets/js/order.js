@@ -316,7 +316,21 @@ async function initCountryDetection() {
     if (!detectedCountry || !hasCoordinates(detectedCountry)) {
         try {
             const browserLocation = await detectCountryFromBrowser();
-            if (browserLocation) detectedCountry = { ...detectedCountry, ...browserLocation };
+            if (browserLocation) {
+                if (detectedCountry?.source === "ipinfo-lite") {
+                    const providersAgree = browserLocation.countryCode === detectedCountry.countryCode;
+                    detectedCountry = providersAgree
+                        ? {
+                            ...browserLocation,
+                            country: detectedCountry.country,
+                            countryCode: detectedCountry.countryCode,
+                            source: "ipinfo-lite"
+                        }
+                        : { ...detectedCountry, city: "", region: "", latitude: null, longitude: null };
+                } else {
+                    detectedCountry = { ...detectedCountry, ...browserLocation };
+                }
+            }
         } catch (error) {
             console.warn("Automatic country detection failed.", error);
         }
@@ -389,6 +403,7 @@ function normalizeDetectedCountry(data) {
     return {
         country,
         countryCode,
+        source: ["ipinfo-lite", "ipapi", "hosting-header", "none"].includes(data.source) ? data.source : "",
         city: String(data.city || "").trim().slice(0, 100),
         region: String(data.region || data.region_name || "").trim().slice(0, 100),
         latitude: Number.isFinite(latitudeValue) && latitudeValue >= -90 && latitudeValue <= 90

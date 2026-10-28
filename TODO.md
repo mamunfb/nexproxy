@@ -1,4 +1,3 @@
-
 ## Authentication gate for ordering
 
 - [x] Homepage pricing-এর সব plan Choose/Start CTA এবং Custom pricing CTA এখন আগে active Supabase session যাচাই করে; signed-out user-কে Account Sign In form-এ পাঠায়।
@@ -14,3 +13,9 @@
 - [x] Coarse IP-derived country/region/city and rounded coordinates are stored separately, without storing a raw IP address.
 - [x] Order and IP-location rows have RLS enabled; only the configured admin can read them. The approximate Google Map appears only in the admin customer-detail modal.
 - [x] The order form discloses approximate IP-area collection; location is not precise GPS.
+
+## IPinfo Lite country cross-check
+
+- [x] সার্ভার `IPINFO_API_TOKEN` environment variable থাকলে IPinfo Lite থেকে দেশ-স্তরের যাচাই করে; token browser-এ পাঠানো বা source/GitHub-এ রাখা হয় না।
+- [x] IPinfo Lite শুধু দেশ/মহাদেশ/ASN তথ্য দেয়; বিদ্যমান শহর, অঞ্চল ও আনুমানিক স্থানাঙ্কের provider অক্ষত থাকে।
+- [ ] Production hosting নির্বাচন করে সেখানে `IPINFO_API_TOKEN` server secret হিসেবে যোগ করতে হবে; তারপর live API lookup যাচাই করতে হবে।
