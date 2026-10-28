@@ -423,20 +423,6 @@ function bindAccountForms() {
         }
     });
 
-    document.getElementById("account-signout").addEventListener("click", async (event) => {
-        const button = event.currentTarget;
-        setSubmitState(button, true, "Signing out…", "Sign out");
-        try {
-            const { error } = await accountState.client.auth.signOut();
-            if (error) throw error;
-            accountState.user = null;
-            showAuthentication("You have signed out.", "success");
-        } catch (error) {
-            setMessage(accountElements.profileMessage, error.message || "Unable to sign out. Please try again.", "error");
-        } finally {
-            setSubmitState(button, false, "Signing out…", "Sign out");
-        }
-    });
 }
 
 async function initializeCustomerAccount() {
@@ -451,13 +437,10 @@ async function initializeCustomerAccount() {
             throw new Error("The account service library could not be loaded. Please refresh and try again.");
         }
 
-        accountState.client = window.supabase.createClient(url, key, {
-            auth: {
-                persistSession: true,
-                autoRefreshToken: true,
-                detectSessionInUrl: true
-            }
+        accountState.client = window.NEXPROXY_SUPABASE_CLIENT || window.supabase.createClient(url, key, {
+            auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
         });
+        window.NEXPROXY_SUPABASE_CLIENT = accountState.client;
         bindAccountForms();
 
         accountState.client.auth.onAuthStateChange((event, session) => {

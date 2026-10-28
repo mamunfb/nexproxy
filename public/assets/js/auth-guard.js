@@ -24,10 +24,16 @@
         clientPromise = new Promise((resolve, reject) => {
             const start = Date.now();
             const wait = () => {
+                if (window.NEXPROXY_SUPABASE_CLIENT) {
+                    resolve(window.NEXPROXY_SUPABASE_CLIENT);
+                    return;
+                }
                 if (window.supabase?.createClient && window.NEXPROXY_SUPABASE_URL && window.NEXPROXY_SUPABASE_PUBLISHABLE_KEY) {
-                    resolve(window.supabase.createClient(window.NEXPROXY_SUPABASE_URL, window.NEXPROXY_SUPABASE_PUBLISHABLE_KEY, {
+                    const client = window.supabase.createClient(window.NEXPROXY_SUPABASE_URL, window.NEXPROXY_SUPABASE_PUBLISHABLE_KEY, {
                         auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
-                    }));
+                    });
+                    window.NEXPROXY_SUPABASE_CLIENT = client;
+                    resolve(client);
                     return;
                 }
                 if (Date.now() - start > 7000) {
