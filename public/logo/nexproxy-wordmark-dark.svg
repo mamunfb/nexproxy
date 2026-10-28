@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" role="img" aria-labelledby="title desc">
+  <title id="title">NexProxy dark wordmark</title>
+  <desc id="desc">NexProxy wordmark for dark backgrounds.</desc>
+  <text x="0" y="84" font-family="Space Grotesk, Inter, Arial, sans-serif" font-size="82" font-weight="600" letter-spacing="-3">
+    <tspan fill="#FFFFFF">Nex</tspan><tspan fill="#3B82F6">Proxy</tspan>
+  </text>
+</svg>

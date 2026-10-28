@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Place Your Order | NexProxy</title>
+
+    <meta
+        name="description"
+        content="Place your NexProxy USA mobile proxy order."
+    >
+
+    <!-- Favicon -->
+    <link rel="icon" href="../logo/favicon.ico">
+    <link
+        rel="icon"
+        type="image/svg+xml"
+        href="../logo/favicon.svg"
+    >
+    <link
+        rel="apple-touch-icon"
+        href="../logo/apple-touch-icon.png"
+    >
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/order.css">
+</head>
+
+<body class="order-page">
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="container">
+            <nav class="navbar" aria-label="Main navigation">
+                <a href="../" class="logo" aria-label="NexProxy home">
+                    <img src="../logo/nexproxy-logo.svg" alt="NexProxy">
+                </a>
+                <ul class="nav-menu">
+                    <li><a href="../">Home</a></li>
+                    <li><a href="../blog/">Blog Post</a></li>
+                    <li><a href="../order/review/">Review Order</a></li>
+                    <li><a href="../#features">Features</a></li>
+                    <li><a href="../#pricing">Pricing</a></li>
+                    <li><a href="../#faq">FAQ</a></li>
+                    <li><a href="../#contact">Contact</a></li>
+                </ul>
+                <button class="nav-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false">
+                    <span></span><span></span><span></span>
+                </button>
+                <div class="nav-auth-actions" aria-label="Account actions">
+                    <a href="../account/?view=signin" class="btn btn-secondary">Sign In</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+
+        <!-- Order Header -->
+        <section class="order-hero">
+            <div class="container">
+
+                <div class="order-heading">
+                    <span class="section-eyebrow">
+                        Secure Order
+                    </span>
+
+                    <h1>
+                        Place Your Order
+                    </h1>
+
+                    <p>
+                        Choose your proxy plan and provide the information
+                        we need to prepare your order.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Order Form -->
+        <section class="order-section">
+            <div class="container">
+
+                <div class="order-layout">
+
+                    <!-- Form -->
+                    <div class="order-form-card">
+
+                        <form id="order-form" novalidate>
+
+                            <!-- Plan Selection -->
+                            <fieldset class="order-fieldset">
+                                <legend>
+                                    Choose Your Plan
+                                </legend>
+
+                                <div class="plan-options">
+
+                                    <label class="plan-option">
+                                        <input type="radio" name="plan" value="trial" data-plan-name="Free Trial" data-plan-price="0" required>
+                                        <span class="plan-option-content"><strong>Free Trial</strong><span>$0 / 10 minutes</span><small>No payment required.</small></span>
+                                    </label>
+
+                                    <label class="plan-option">
+                                        <input type="radio" name="plan" value="starter" data-plan-name="Starter" data-plan-price="25" data-plan-quantity="1" data-plan-discount="79.17" required>
+                                        <span class="plan-option-content"><strong>Starter</strong><span>$25.00 / month</span><small>1 proxy for individual users and testing.</small></span>
+                                    </label>
+
+                                    <label class="plan-option plan-option-featured">
+                                        <input type="radio" name="plan" value="growth" data-plan-name="Growth" data-plan-price="100" data-plan-quantity="6" data-plan-discount="86.11" required>
+                                        <span class="plan-option-content"><strong>Growth</strong><span>$100.00 / month</span><small>6 proxy connections for multiple projects.</small></span>
+                                    </label>
+
+                                    <label class="plan-option">
+                                        <input type="radio" name="plan" value="professional" data-plan-name="Professional" data-plan-price="200" data-plan-quantity="15" data-plan-discount="88.89" required>
+                                        <span class="plan-option-content"><strong>Professional</strong><span>$200.00 / month</span><small>15 proxy connections for professional workflows.</small></span>
+                                    </label>
+
+                                    <label class="plan-option">
+                                        <input type="radio" name="plan" value="business" data-plan-name="Business" data-plan-price="300" data-plan-quantity="25" data-plan-discount="90.00" required>
+                                        <span class="plan-option-content"><strong>Business</strong><span>$300.00 / month</span><small>25 proxy connections for larger operations.</small></span>
+                                    </label>
+
+                                    <label class="plan-option">
+                                        <input type="radio" name="plan" value="custom" data-plan-name="Custom" data-plan-price="custom" required>
+                                        <span class="plan-option-content"><strong>Custom</strong><span>1–100 proxies / month</span><small>Live quantity-based pricing.</small></span>
+                                    </label>
+
+                                </div>
+
+                                <div class="form-field order-custom-quantity" id="custom-quantity-field" hidden>
+                                    <label for="order-custom-quantity">Custom proxy quantity</label>
+                                    <select id="order-custom-quantity" name="customQuantity" data-selected="1"></select>
+                                    <p class="form-help" id="custom-pricing-summary">Select a quantity to see live pricing.</p>
+                                </div>
+
+                                <p
+                                    class="form-error"
+                                    id="plan-error"
+                                    role="alert"
+                                ></p>
+                            </fieldset>
+
+                            <!-- Customer Information -->
+                            <fieldset class="order-fieldset">
+                                <legend>
+                                    Your Information
+                                </legend>
+
+                                <div class="form-grid">
+
+                                    <div class="form-field">
+                                        <label for="full-name">
+                                            Full Name
+                                        </label>
+
+                                        <input
+                                            id="full-name"
+                                            name="fullName"
+                                            type="text"
+                                            autocomplete="name"
+                                            required
+                                        >
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label for="email">
+                                            Email Address
+                                        </label>
+
+                                        <input
+                                            id="email"
+                                            name="email"
+                                            type="email"
+                                            autocomplete="email"
+                                            required
+                                        >
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label for="telegram">
+                                            Telegram Username
+                                        </label>
+
+                                        <input
+                                            id="telegram"
+                                            name="telegram"
+                                            type="text"
+                                            placeholder="@username"
+                                            autocomplete="off"
+                                            required
+                                        >
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label for="intended-use">
+                                            Intended Use
+                                        </label>
+
+                                        <select
+                                            id="intended-use"
+                                            name="intendedUse"
+                                            required
+                                        >
+                                            <option value="">
+                                                Select an option
+                                            </option>
+                                            <option value="web-research">
+                                                Web Research
+                                            </option>
+                                            <option value="data-collection">
+                                                Data Collection
+                                            </option>
+                                            <option value="automation">
+                                                Automation
+                                            </option>
+                                            <option value="testing">
+                                                Testing
+                                            </option>
+                                            <option value="other">
+                                                Other Legitimate Use
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-field">
+                                        <label for="country">
+                                            Country
+                                        </label>
+                                        <select id="country" name="country" aria-describedby="country-help" required>
+                                            <option value="">Detecting country…</option>
+                                        </select>
+                                        <small id="country-help" class="form-help">
+                                            Selected automatically from your current IP address.
+                                        </small>
+                                    </div>
+
+                                </div>
+
+                                <div class="form-field">
+                                    <label for="requirements">
+                                        Additional Requirements
+                                        <span>(Optional)</span>
+                                    </label>
+
+                                    <textarea
+                                        id="requirements"
+                                        name="requirements"
+                                        rows="5"
+                                        placeholder="Tell us anything important about your proxy requirements."
+                                    ></textarea>
+                                </div>
+
+                            </fieldset>
+
+                            <!-- Terms -->
+                            <div class="order-consent">
+
+                                <label class="checkbox-field">
+                                    <input
+                                        type="checkbox"
+                                        id="terms-consent"
+                                        name="termsConsent"
+                                        required
+                                    >
+
+                                    <span>
+                                        I agree to the
+                                        <a
+                                            href="../terms/"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            Terms of Service
+                                        </a>
+                                        and
+                                        <a
+                                            href="../acceptable-use/"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            Acceptable Use Policy
+                                        </a>.
+                                    </span>
+                                </label>
+
+                                <p
+                                    class="form-error"
+                                    id="consent-error"
+                                    role="alert"
+                                ></p>
+
+                            </div>
+
+                            <!-- Submit -->
+                            <div class="order-submit">
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary"
+                                >
+                                    Continue to Order Review
+                                </button>
+
+                                <p>
+                                    No payment is collected on this step.
+                                </p>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                    <!-- Order Summary -->
+                    <aside
+                        class="order-summary"
+                        aria-labelledby="order-summary-title"
+                    >
+
+                        <div class="order-summary-card">
+
+                            <h2 id="order-summary-title">
+                                Order Summary
+                            </h2>
+
+                            <div class="summary-row">
+                                <span>Plan</span>
+                                <strong id="summary-plan">
+                                    Select a plan
+                                </strong>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>Price</span>
+                                <strong id="summary-price">
+                                    —
+                                </strong>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>Country</span>
+                                <strong id="summary-country">Detecting…</strong>
+                            </div>
+
+                            <div class="summary-note">
+                                <strong>What happens next?</strong>
+
+                                <p>
+                                    After submitting your information,
+                                    you will review the order details before
+                                    moving to the payment step.
+                                </p>
+                            </div>
+
+                            <div class="summary-note">
+                                <strong>Support</strong>
+
+                                <p>
+                                    Need help?
+                                    <a
+                                        href="https://t.me/NexProxyHQ"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        Contact us on Telegram
+                                    </a>.
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </aside>
+
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="container">
+
+            <div class="footer-grid">
+
+                <div class="footer-brand">
+                    <a
+                        href="../"
+                        class="footer-logo"
+                    >
+                        NexProxy
+                    </a>
+
+                    <p>
+                        Modern infrastructure you can trust.
+                    </p>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Explore</h3>
+
+                    <ul class="footer-links">
+                        <li>
+                            <a href="../#features">Features</a>
+                        </li>
+                        <li>
+                            <a href="../#pricing">Pricing</a>
+                        </li>
+                        <li>
+                            <a href="../#faq">FAQ</a>
+                        </li>
+                        <li>
+                            <a href="../#contact">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Support</h3>
+
+                    <ul class="footer-links">
+                        <li>
+                            <a
+                                href="https://t.me/NexProxyHQ"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Telegram Support
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../#faq">
+                                FAQ
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Legal</h3>
+
+                    <ul class="footer-links">
+                        <li>
+                            <a href="../terms/">
+                                Terms of Service
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../privacy/">
+                                Privacy Policy
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../refund-policy/">
+                                Refund &amp; Replacement
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../acceptable-use/">
+                                Acceptable Use
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="footer-bottom">
+                <p>
+                    &copy; 2026 NexProxy. All rights reserved.
+                </p>
+            </div>
+
+        </div>
+    </footer>
+
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/pricing.js"></script>
+    <script src="../assets/js/order.js"></script>
+
+    <script src="../assets/js/config.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="../assets/js/auth-guard.js" defer></script>
+</body>
+</html>

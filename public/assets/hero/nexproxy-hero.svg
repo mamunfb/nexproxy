@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 520" role="img" aria-labelledby="title desc">
+  <title id="title">NexProxy USA mobile proxy network</title>
+  <desc id="desc">A clean geometric illustration showing mobile proxy connections flowing through a USA network to professional devices.</desc>
+
+  <!-- Background panel -->
+  <rect x="18" y="18" width="684" height="484" rx="28" fill="#F8FAFC" stroke="#E2E8F0"/>
+
+  <!-- Soft grid -->
+  <path d="M70 120H650M70 200H650M70 280H650M70 360H650M70 440H650"
+        stroke="#E2E8F0" stroke-width="1"/>
+  <path d="M150 70V450M250 70V450M350 70V450M450 70V450M550 70V450"
+        stroke="#E2E8F0" stroke-width="1"/>
+
+  <!-- USA/network area -->
+  <path d="M276 154
+           C302 140 337 142 365 155
+           C391 167 413 183 434 201
+           C449 214 459 231 456 248
+           C453 264 439 276 427 287
+           C414 299 407 314 398 330
+           C389 346 371 357 353 353
+           C337 349 327 334 315 326
+           C303 318 288 315 275 306
+           C259 294 248 279 246 262
+           C244 244 253 227 264 213
+           C275 198 282 184 276 154Z"
+        fill="#EFF6FF" stroke="#93C5FD" stroke-width="2"/>
+
+  <!-- Network routes -->
+  <path d="M142 164 C215 164 239 192 274 218 C306 242 332 249 373 249 C424 249 466 226 510 190"
+        fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round"/>
+  <path d="M142 350 C218 350 246 322 281 295 C316 268 341 258 382 258 C431 258 466 283 510 330"
+        fill="none" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
+  <path d="M174 256 C235 256 263 256 309 256 C365 256 404 256 472 256"
+        fill="none" stroke="#BFDBFE" stroke-width="2" stroke-dasharray="7 8" stroke-linecap="round"/>
+
+  <!-- Connection nodes -->
+  <g fill="#2563EB">
+    <circle cx="142" cy="164" r="7"/>
+    <circle cx="142" cy="350" r="7"/>
+    <circle cx="510" cy="190" r="7"/>
+    <circle cx="510" cy="330" r="7"/>
+    <circle cx="350" cy="256" r="9"/>
+  </g>
+
+  <!-- Mobile device cards -->
+  <g>
+    <rect x="76" y="126" width="132" height="78" rx="16" fill="#FFFFFF" stroke="#DCE6F2"/>
+    <rect x="76" y="316" width="132" height="78" rx="16" fill="#FFFFFF" stroke="#DCE6F2"/>
+    <rect x="512" y="151" width="132" height="78" rx="16" fill="#FFFFFF" stroke="#DCE6F2"/>
+    <rect x="512" y="291" width="132" height="78" rx="16" fill="#FFFFFF" stroke="#DCE6F2"/>
+  </g>
+
+  <!-- Simple device/network marks -->
+  <g fill="none" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="93" y="143" width="28" height="44" rx="6"/>
+    <path d="M102 179H112"/>
+    <rect x="93" y="333" width="28" height="44" rx="6"/>
+    <path d="M102 369H112"/>
+
+    <rect x="529" y="168" width="28" height="44" rx="6"/>
+    <path d="M538 204H548"/>
+    <rect x="529" y="308" width="28" height="44" rx="6"/>
+    <path d="M538 344H548"/>
+  </g>
+
+  <!-- Center proxy node -->
+  <rect x="300" y="220" width="100" height="72" rx="18" fill="#FFFFFF" stroke="#2563EB" stroke-width="2"/>
+  <path d="M329 256h42" stroke="#2563EB" stroke-width="3" stroke-linecap="round"/>
+  <path d="M350 235v42" stroke="#BFDBFE" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="350" cy="256" r="10" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
+
+  <!-- Labels -->
+  <g font-family="Inter, Arial, sans-serif" fill="#0F172A">
+    <text x="136" y="158" font-size="13" font-weight="600">Mobile IP</text>
+    <text x="136" y="178" font-size="11" fill="#64748B">USA carrier</text>
+
+    <text x="136" y="348" font-size="13" font-weight="600">Mobile IP</text>
+    <text x="136" y="368" font-size="11" fill="#64748B">Dedicated access</text>
+
+    <text x="572" y="183" font-size="13" font-weight="600">Workflow</text>
+    <text x="572" y="203" font-size="11" fill="#64748B">Professional use</text>
+
+    <text x="572" y="323" font-size="13" font-weight="600">Workflow</text>
+    <text x="572" y="343" font-size="11" fill="#64748B">Reliable access</text>
+
+    <text x="350" y="305" text-anchor="middle" font-size="12" font-weight="600">NexProxy</text>
+  </g>
+
+  <!-- Accent indicator -->
+  <circle cx="350" cy="256" r="4" fill="#2563EB"/>
+</svg>

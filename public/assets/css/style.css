@@ -1,0 +1,1709 @@
+/* =========================================================
+   NexProxy â€” CSS Foundation
+   Sprint 10.1
+   ========================================================= */
+
+/* =========================================================
+   1. Design Tokens
+   ========================================================= */
+
+:root {
+  /* Colors */
+  --color-bg: #ffffff;
+  --color-surface: #f8fafc;
+  --color-surface-alt: #f1f5f9;
+
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #334155;
+  --color-text-muted: #64748b;
+
+  --color-border: #e2e8f0;
+
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-soft: #eff6ff;
+
+  --color-white: #ffffff;
+
+  /* Typography */
+  --font-heading: "Space Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  --text-h1: 56px;
+  --text-h2: 40px;
+  --text-h3: 28px;
+  --text-body: 16px;
+  --text-small: 14px;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --line-heading: 1.2;
+  --line-body: 1.6;
+  --line-small: 1.5;
+
+  /* Spacing â€” 8px system */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 48px;
+  --space-6: 64px;
+  --space-7: 80px;
+  --space-8: 96px;
+  --space-9: 128px;
+
+  /* Layout */
+  --container-max: 1200px;
+
+  --container-padding-desktop: 32px;
+  --container-padding-tablet: 24px;
+  --container-padding-mobile: 20px;
+
+  --paragraph-max: 800px;
+
+  /* Components */
+  --card-padding: 24px;
+  --card-gap: 24px;
+  --radius-card: 16px;
+  --radius-button: 12px;
+
+  --button-height: 48px;
+
+  /* Effects */
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+}
+
+
+/* =========================================================
+   2. CSS Reset
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  border: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+
+/* =========================================================
+   3. Global Typography
+   ========================================================= */
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: var(--weight-regular);
+  line-height: var(--line-body);
+
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+
+  font-family: var(--font-heading);
+  color: var(--color-text-primary);
+
+  font-weight: var(--weight-bold);
+  line-height: var(--line-heading);
+}
+
+h1 {
+  font-size: var(--text-h1);
+}
+
+h2 {
+  font-size: var(--text-h2);
+}
+
+h3 {
+  font-size: var(--text-h3);
+}
+
+p {
+  margin: 0;
+}
+
+small {
+  font-size: var(--text-small);
+  line-height: var(--line-small);
+}
+
+
+/* =========================================================
+   4. Global Links
+   ========================================================= */
+
+a {
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+
+/* =========================================================
+   5. Global Focus State
+   ========================================================= */
+
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+
+/* =========================================================
+   6. Layout Foundation
+   ========================================================= */
+
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+
+  margin-inline: auto;
+  padding-inline: var(--container-padding-desktop);
+}
+
+.section {
+  width: 100%;
+  padding-block: var(--space-8);
+}
+
+
+/* =========================================================
+   7. Paragraph Foundation
+   ========================================================= */
+
+.text-readable {
+  max-width: var(--paragraph-max);
+}
+
+
+/* =========================================================
+   8. Button Foundation
+   ========================================================= */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: var(--button-height);
+
+  padding-inline: var(--space-3);
+
+  border-radius: var(--radius-button);
+
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: var(--weight-semibold);
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--transition-base),
+    color var(--transition-base),
+    border-color var(--transition-base),
+    transform var(--transition-fast);
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+
+/* =========================================================
+   9. Responsive Foundation
+   ========================================================= */
+
+/* Tablet */
+@media (max-width: 1023px) {
+  .container {
+    padding-inline: var(--container-padding-tablet);
+  }
+
+  .section {
+    padding-block: var(--space-7);
+  }
+}
+
+
+/* Mobile */
+@media (max-width: 767px) {
+  :root {
+    --text-h1: 40px;
+    --text-h2: 32px;
+    --text-h3: 24px;
+  }
+
+  .container {
+    padding-inline: var(--container-padding-mobile);
+  }
+
+  .section {
+    padding-block: var(--space-6);
+  }
+}
+
+
+/* =========================================================
+   End â€” Sprint 10.1 Foundation
+   ========================================================= */
+
+
+   /* =========================================================
+   Sprint 10.2 â€” Navigation + Hero
+   ========================================================= */
+
+
+/* =========================================================
+   10. Navigation
+   ========================================================= */
+
+.site-header {
+  width: 100%;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+
+.navbar {
+  min-height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: var(--space-3);
+}
+
+.nav-toggle {
+    display: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.nav-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-text-primary);
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.logo img {
+  display: block;
+  width: auto;
+  height: 32px;
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+
+  gap: var(--space-3);
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.nav-menu a {
+  color: var(--color-text-secondary);
+
+  font-size: var(--text-small);
+  font-weight: var(--weight-medium);
+}
+
+.nav-menu a:hover {
+  color: var(--color-accent);
+}
+
+.nav-auth-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   11. Button System
+   ========================================================= */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: var(--button-height);
+
+  padding-inline: var(--space-3);
+
+  border-radius: var(--radius-button);
+
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: var(--weight-semibold);
+
+  line-height: 1;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    background-color var(--transition-base),
+    color var(--transition-base),
+    border-color var(--transition-base),
+    transform var(--transition-fast);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-white);
+}
+
+.btn-primary:hover {
+  background: var(--color-accent-hover);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-text-primary);
+
+  border: 1px solid var(--color-border);
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-text-secondary);
+  background: var(--color-surface);
+}
+
+
+/* =========================================================
+   12. Hero
+   ========================================================= */
+
+.hero {
+  padding-block: var(--space-9);
+}
+
+.hero-content {
+  display: grid;
+
+  grid-template-columns: minmax(0, 1.3fr) minmax(360px, 0.7fr);
+
+  align-items: center;
+
+  gap: var(--space-6);
+}
+
+.hero-text {
+  max-width: 720px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+
+  min-height: 32px;
+
+  padding-inline: var(--space-2);
+
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+
+  font-size: var(--text-small);
+  font-weight: var(--weight-semibold);
+}
+
+.hero-title {
+  margin-top: var(--space-3);
+
+  max-width: 680px;
+
+  font-size: var(--text-h1);
+  font-weight: var(--weight-bold);
+  line-height: var(--line-heading);
+  letter-spacing: -0.02em;
+}
+
+.hero-description {
+  max-width: 640px;
+
+  margin-top: var(--space-3);
+
+  color: var(--color-text-secondary);
+
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.hero-buttons {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: var(--space-2);
+
+  margin-top: var(--space-4);
+}
+
+.hero-trust {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: var(--space-2);
+
+  margin: var(--space-4) 0 0;
+  padding: 0;
+
+  list-style: none;
+
+  color: var(--color-text-muted);
+
+  font-size: var(--text-small);
+}
+
+.hero-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-illustration {
+  width: 100%;
+  min-height: 360px;
+
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+
+  background: var(--color-surface);
+}
+
+
+/* =========================================================
+   13. Navigation + Hero Responsive Foundation
+   ========================================================= */
+
+@media (max-width: 1023px) {
+  .hero {
+    padding-block: var(--space-8);
+  }
+
+  .hero-content {
+    grid-template-columns: 1fr;
+
+    gap: var(--space-6);
+  }
+
+  .hero-text {
+    max-width: 760px;
+  }
+
+  .hero-visual {
+    max-width: 760px;
+  }
+}
+
+@media (max-width: 900px) {
+  .navbar {
+    position: relative;
+  }
+
+  .nav-toggle {
+    display: flex;
+    order: 2;
+    flex-shrink: 0;
+  }
+
+  .nav-auth-actions {
+    order: 3;
+    margin-left: auto;
+  }
+
+  .nav-menu {
+    display: none;
+  }
+
+  .nav-menu.is-open {
+    display: flex;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    padding: 16px 20px;
+    background: var(--color-white);
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    z-index: 100;
+  }
+
+  .nav-menu.is-open li {
+    width: 100%;
+  }
+
+  .nav-menu.is-open a {
+    display: block;
+    padding: 12px 0;
+  }
+}
+
+
+@media (max-width: 767px) {
+  .navbar {
+    min-height: 64px;
+
+    flex-wrap: nowrap;
+    gap: 8px;
+
+    padding-block: var(--space-2);
+  }
+
+  .nav-menu {
+    order: 4;
+
+    width: 100%;
+
+    justify-content: center;
+
+    gap: var(--space-2);
+
+    padding-bottom: var(--space-1);
+  }
+
+  .navbar > .btn {
+    min-height: 44px;
+
+    padding-inline: var(--space-2);
+
+    font-size: var(--text-small);
+  }
+
+  .hero {
+    padding-block: var(--space-6);
+  }
+
+  .hero-title {
+    font-size: var(--text-h1);
+  }
+
+  .hero-description {
+    font-size: var(--text-body);
+  }
+
+  .hero-buttons {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .hero-buttons .btn {
+    width: 100%;
+  }
+
+  .hero-trust {
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .hero-illustration {
+    min-height: 280px;
+  }
+
+  .nav-toggle {
+    display: flex;
+    width: 36px;
+    }
+
+  .nav-auth-actions {
+    gap: 4px;
+  }
+
+  .nav-auth-actions .btn {
+    min-height: 36px;
+    padding-inline: 8px;
+    font-size: 12px;
+  }
+
+  .nav-menu {
+        display: none;
+    }
+
+  .navbar > .btn {
+        display: none;
+    }
+
+  .nav-auth-actions .btn {
+    min-height: 38px;
+    padding-inline: 12px;
+    font-size: var(--text-small);
+  }
+
+    .navbar {
+    position: relative;
+    }
+
+    .nav-menu.is-open {
+        display: flex;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+
+        flex-direction: column;
+        gap: 0;
+
+        padding: 16px 20px;
+        background: var(--color-white);
+        border-top: 1px solid var(--color-border);
+        border-bottom: 1px solid var(--color-border);
+
+        z-index: 100;
+    }
+
+    .nav-menu.is-open li {
+        width: 100%;
+    }
+
+    .nav-menu.is-open a {
+        display: block;
+        padding: 12px 0;
+    }
+}
+
+
+/* =========================================================
+   End â€” Sprint 10.2
+   ========================================================= */
+
+   /* =========================================================
+   Sprint 10.3 â€” Trust + Cards
+   Trust Bar
+   ========================================================= */
+
+.trust {
+    padding: var(--space-6) 0;
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface);
+}
+
+.trust-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.trust-list li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-medium);
+    text-align: center;
+}
+
+.trust-list li::first-letter {
+    color: var(--color-accent);
+}
+
+/* Trust Bar â€” Tablet */
+@media (max-width: 1023px) {
+    .trust-list {
+        gap: var(--space-4);
+    }
+}
+
+/* Trust Bar â€” Mobile */
+@media (max-width: 767px) {
+    .trust {
+        padding: var(--space-5) 0;
+    }
+
+    .trust-list {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+    }
+
+    .trust-list li {
+        justify-content: flex-start;
+        text-align: left;
+    }
+}
+
+
+/* =========================================================
+   Sprint 10.3 â€” Audience Cards
+   ========================================================= */
+
+.audience-section {
+    padding-top: 96px;
+    padding-bottom: 96px;
+}
+
+.section-heading {
+    max-width: var(--max-text-width);
+    margin-bottom: var(--space-8);
+}
+
+.section-eyebrow {
+    display: inline-block;
+    margin-bottom: var(--space-2);
+    color: var(--color-accent);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.02em;
+}
+
+.section-heading h2 {
+    margin-bottom: var(--space-4);
+}
+
+.section-heading p {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+
+.audience-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
+}
+
+.audience-card {
+    padding: var(--card-padding);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.audience-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-card);
+    transform: translateY(-2px);
+}
+
+.audience-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: var(--space-4);
+    background: var(--color-accent-soft);
+    border-radius: var(--radius-button);
+    color: var(--color-accent);
+    font-size: 20px;
+    font-weight: var(--font-weight-semibold);
+}
+
+.audience-card h3 {
+    margin-bottom: var(--space-2);
+}
+
+.audience-card p {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+
+/* Audience Cards â€” Tablet */
+@media (max-width: 1023px) {
+    .audience-section {
+        padding: 80px 0;
+    }
+
+    .audience-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Audience Cards â€” Mobile */
+@media (max-width: 767px) {
+    .audience-section {
+        padding-top: 64px;
+        padding-bottom: 64px;
+    }
+
+    .section-heading {
+        margin-bottom: var(--space-6);
+    }
+
+    .audience-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+    }
+
+    .audience-card {
+        padding: var(--space-5);
+    }
+}
+
+
+/* =========================================================
+   Sprint 10.3 â€” Features Cards
+   ========================================================= */
+
+.features-section {
+    padding-top: 96px;
+    padding-bottom: 96px;
+    background: var(--color-surface);
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--space-6);
+}
+
+.feature-card {
+    grid-column: span 2;
+}
+
+.feature-card {
+    padding: var(--card-padding);
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+/* Center the two cards in the final row */
+/* Center the final two cards */
+.feature-card:nth-child(4) {
+    grid-column: 2 / span 2;
+}
+
+.feature-card:nth-child(5) {
+    grid-column: 4 / span 2;
+}
+
+.feature-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-card);
+    transform: translateY(-2px);
+}
+
+.feature-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: var(--space-4);
+    background: var(--color-accent-soft);
+    border-radius: var(--radius-button);
+    color: var(--color-accent);
+    font-size: 20px;
+    font-weight: var(--font-weight-semibold);
+}
+
+.feature-card h3 {
+    margin-bottom: var(--space-2);
+}
+
+.feature-card p {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+
+/* Features Cards â€” Tablet */
+@media (max-width: 1023px) {
+    .features-section {
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .feature-card:nth-child(4),
+    .feature-card:nth-child(5) {
+        grid-column: auto;
+        margin-left: 0;
+        transform: none;
+    }
+}
+
+/* Features Cards â€” Mobile */
+@media (max-width: 767px) {
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-4);
+    }
+
+    .feature-card {
+        grid-column: 1 / -1;
+        padding: var(--space-5);
+    }
+
+    .feature-card:nth-child(4),
+    .feature-card:nth-child(5) {
+        grid-column: 1 / -1;
+        margin-left: 0;
+        transform: none;
+    }
+}
+
+
+/* =========================================================
+   Sprint 10.4 â€” Pricing + Process
+   Pricing Section â€” Foundation
+   ========================================================= */
+
+.pricing-section {
+    padding-top: 96px;
+    padding-bottom: 96px;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    align-items: stretch;
+}
+
+.pricing-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 32px 24px 24px;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.pricing-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-card);
+    transform: translateY(-2px);
+}
+
+.pricing-card-header {
+    margin-bottom: 24px;
+}
+
+.pricing-card h3 {
+    margin-bottom: 8px;
+}
+
+.pricing-description {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+
+.pricing-price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    margin-bottom: 24px;
+}
+
+.price-currency {
+    color: var(--color-text-primary);
+    font-size: 20px;
+    font-weight: var(--font-weight-semibold);
+}
+
+.price-amount {
+    color: var(--color-text-primary);
+    font-size: 48px;
+    font-weight: var(--font-weight-bold);
+    line-height: 1;
+}
+
+.price-period {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-small);
+}
+
+.pricing-features {
+    display: grid;
+    gap: 12px;
+    margin: 0 0 24px;
+    padding: 0;
+    list-style: none;
+}
+
+.pricing-features li {
+    position: relative;
+    padding-left: 24px;
+    color: var(--color-text-secondary);
+}
+
+.pricing-features li::before {
+    content: "\2713";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--color-accent);
+    font-weight: var(--font-weight-semibold);
+}
+
+.pricing-card .btn {
+    width: 100%;
+    margin-top: auto;
+}
+
+.pricing-note {
+    margin: 16px 0 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-small);
+    line-height: 1.5;
+    text-align: center;
+}
+
+.pricing-price-custom {
+    min-height: 48px;
+}
+
+.price-custom-text {
+    color: var(--color-text-primary);
+    font-size: 36px;
+    font-weight: var(--font-weight-bold);
+    line-height: 1;
+}
+
+/* Pricing â€” Tablet */
+@media (max-width: 1023px) {
+    .pricing-section {
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+
+    .pricing-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pricing-card {
+        padding: 28px 24px 24px;
+    }
+
+    .pricing-card:nth-child(3) {
+        grid-column: 1 / -1;
+        width: calc(50% - 12px);
+        justify-self: center;
+    }
+}
+
+/* Pricing â€” Mobile */
+@media (max-width: 767px) {
+    .pricing-section {
+        padding-top: 64px;
+        padding-bottom: 64px;    
+    }
+
+    .pricing-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .pricing-card {
+        padding: 24px 20px;
+    }
+
+    .pricing-card-header {
+        margin-bottom: 20px;
+    }
+
+    .pricing-price {
+        margin-bottom: 20px;
+    }
+
+    .price-amount {
+        font-size: 44px;
+    }
+
+    .pricing-features {
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .pricing-note {
+        margin-top: 12px;
+    }
+
+    .pricing-card:nth-child(3) {
+        grid-column: auto;
+        width: 100%;
+        justify-self: stretch;
+    }
+}
+
+/* Pricing â€” Section Heading Spacing */
+.pricing-section .section-heading {
+    margin-bottom: 32px;
+}
+
+
+/* =========================================================
+   Sprint 10.4B â€” Featured Monthly Card
+   Recommended Badge
+   ========================================================= */
+
+.pricing-card-featured {
+    border-color: var(--color-accent);
+    padding-top: 56px;
+}
+
+.pricing-badge {
+    position: absolute;
+    top: 16px;
+    left: 24px;
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 4px 10px;
+    background: var(--color-accent-soft);
+    border-radius: 999px;
+    color: var(--color-accent);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.2;
+}
+
+.pricing-card-featured:hover {
+    border-color: var(--color-accent);
+}
+
+/* Featured Pricing Card â€” Mobile */
+@media (max-width: 767px) {
+    .pricing-card-featured {
+        padding-top: 56px;
+    }
+
+    .pricing-badge {
+        top: 16px;
+        left: 20px;
+    }
+}
+
+/* =========================================================
+   Sprint 10.4C â€” Pricing CTA Refinement
+   ========================================================= */
+
+.pricing-card .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    width: 100%;
+    text-align: center;
+}
+
+.pricing-card .btn-primary,
+.pricing-card .btn-secondary {
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   Sprint 10.4D â€” How It Works / Process
+   ========================================================= */
+
+.process-section {
+    padding-top: 96px;
+    padding-bottom: 96px;
+    background: var(--color-surface);
+}
+
+.process-section .section-heading {
+    margin-bottom: 32px;
+}
+
+.process-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.process-card {
+    padding: 24px;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
+}
+
+.process-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-card);
+    transform: translateY(-2px);
+}
+
+.process-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 24px;
+    background: var(--color-accent-soft);
+    border-radius: var(--radius-button);
+    color: var(--color-accent);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-semibold);
+}
+
+.process-card h3 {
+    margin-bottom: 8px;
+}
+
+.process-card p {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+
+/* Process â€” Tablet */
+@media (max-width: 1023px) {
+    .process-section {
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+
+    .process-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Process â€” Mobile */
+@media (max-width: 767px) {
+    .process-section {
+        padding-top: 64px;
+        padding-bottom: 64px;
+    }
+
+    .process-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .process-card {
+        padding: 20px;
+    }
+}
+
+
+/* =========================================================
+   Sprint 10.5A â€” FAQ Foundation
+   ========================================================= */
+
+.faq-section {
+    padding-top: 96px;
+    padding-bottom: 96px;
+}
+
+.faq-section .section-heading {
+    margin-bottom: 32px;
+}
+
+.faq-list {
+    display: grid;
+    gap: 16px;
+    max-width: var(--max-text-width);
+}
+
+.faq-item {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.faq-item:hover {
+    border-color: var(--color-accent);
+    box-shadow: var(--shadow-card);
+}
+
+.faq-item summary {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 64px;
+    padding: 20px 56px 20px 24px;
+    color: var(--color-text-primary);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    list-style: none;
+}
+
+.faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.faq-item summary::after {
+    content: "+";
+    position: absolute;
+    top: 50%;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: var(--color-accent);
+    font-size: 22px;
+    font-weight: var(--font-weight-medium);
+    line-height: 1;
+    transform: translateY(-50%);
+}
+
+.faq-item[open] summary::after {
+    content: "\2212";
+}
+
+.faq-answer {
+    padding: 0 24px 24px;
+}
+
+.faq-answer p {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+
+.faq-answer p + p {
+    margin-top: 16px;
+}
+
+/* FAQ â€” Tablet */
+@media (max-width: 1023px) {
+    .faq-section {
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+}
+
+/* FAQ â€” Mobile */
+@media (max-width: 767px) {
+    .faq-section {
+        padding-top: 64px;
+        padding-bottom: 64px;
+    }
+
+    .faq-list {
+        gap: 12px;
+    }
+
+    .faq-item summary {
+        min-height: 60px;
+        padding: 18px 52px 18px 20px;
+    }
+
+    .faq-item summary::after {
+        right: 20px;
+    }
+
+    .faq-answer {
+        padding: 0 20px 20px;
+    }
+}
+
+/* =========================================================
+   Sprint 10.5B â€” Contact CTA
+   ========================================================= */
+
+.contact-section {
+    padding-top: 96px;
+    padding-bottom: 96px;
+    background: var(--color-surface);
+}
+
+.contact-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+    padding: 48px;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+}
+
+.contact-text {
+    max-width: 720px;
+}
+
+.contact-text h2 {
+    margin-bottom: 16px;
+}
+
+.contact-text p {
+    margin: 0;
+    max-width: var(--max-text-width);
+    color: var(--color-text-secondary);
+}
+
+.contact-action {
+    flex-shrink: 0;
+}
+
+.contact-action .btn {
+    min-width: 180px;
+}
+
+/* Contact CTA â€” Tablet */
+@media (max-width: 1023px) {
+    .contact-section {
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+
+    .contact-content {
+        gap: 32px;
+        padding: 40px;
+    }
+}
+
+/* Contact CTA â€” Mobile */
+@media (max-width: 767px) {
+    .contact-section {
+        padding-top: 64px;
+        padding-bottom: 64px;
+    }
+
+    .contact-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 32px;
+        padding: 32px 24px;
+    }
+
+    .contact-action {
+        width: 100%;
+    }
+
+    .contact-action .btn {
+        width: 100%;
+    }
+}
+
+
+/* =========================================================
+   Sprint 10.5C â€” Footer
+   ========================================================= */
+
+.site-footer {
+    padding-top: 64px;
+    padding-bottom: 24px;
+    background: var(--color-white);
+    border-top: 1px solid var(--color-border);
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+    padding-bottom: 48px;
+}
+
+.footer-brand {
+    max-width: 360px;
+}
+
+.footer-logo {
+    display: inline-block;
+    margin-bottom: 16px;
+    color: var(--color-text-primary);
+    font-family: var(--font-family-heading);
+    font-size: 24px;
+    font-weight: var(--font-weight-bold);
+    line-height: 1.2;
+    text-decoration: none;
+}
+
+.footer-brand p {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+
+.footer-heading {
+    margin: 0 0 16px;
+    color: var(--color-text-primary);
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.5;
+}
+
+.footer-links {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.footer-links a {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-small);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+.footer-links a:hover {
+    color: var(--color-accent);
+}
+
+.footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--color-border);
+}
+
+.footer-bottom p {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-small);
+}
+
+/* Footer â€” Tablet */
+@media (max-width: 1023px) {
+    .site-footer {
+        padding-top: 56px;
+    }
+
+    .footer-grid {
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 40px 32px;
+        padding-bottom: 40px;
+    }
+
+    .footer-brand {
+        grid-column: 1 / -1;
+        max-width: 560px;
+    }
+}
+
+/* Footer â€” Mobile */
+@media (max-width: 767px) {
+    .site-footer {
+        padding-top: 48px;
+        padding-bottom: 20px;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding-bottom: 40px;
+    }
+
+    .footer-brand {
+        grid-column: auto;
+        max-width: none;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding-top: 20px;
+    }
+}

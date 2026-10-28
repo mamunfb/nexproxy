@@ -1,0 +1,365 @@
+/* =========================================================
+   NexProxy Legal Pages
+   Sprint 14
+   ========================================================= */
+
+.legal-page {
+  min-height: 100vh;
+  background: var(--color-background);
+}
+
+.legal-main {
+  padding-block: var(--space-12);
+}
+
+.legal-container {
+  width: min(100% - 48px, 900px);
+  margin-inline: auto;
+}
+
+.legal-header {
+  margin-bottom: var(--space-8);
+}
+
+.legal-eyebrow {
+  margin: 0 0 var(--space-2);
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.legal-title {
+  margin: 0;
+  color: var(--color-heading);
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.15;
+}
+
+.legal-updated {
+  margin: var(--space-3) 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+.legal-content {
+  padding: var(--space-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.legal-content section + section {
+  margin-top: var(--space-8);
+}
+
+.legal-content h2 {
+  margin: 0 0 var(--space-3);
+  color: var(--color-heading);
+  font-size: 1.375rem;
+  line-height: 1.3;
+}
+
+.legal-content p {
+  max-width: 800px;
+  margin: 0 0 var(--space-4);
+  color: var(--color-text);
+  line-height: 1.75;
+}
+
+.legal-content p:last-child {
+  margin-bottom: 0;
+}
+
+.legal-content ul {
+  max-width: 800px;
+  margin: 0 0 var(--space-4);
+  padding-left: 1.25rem;
+  color: var(--color-text);
+}
+
+.legal-content li {
+  margin-bottom: var(--space-2);
+  line-height: 1.7;
+}
+
+.legal-content li:last-child {
+  margin-bottom: 0;
+}
+
+.legal-content strong {
+  color: var(--color-heading);
+}
+
+.legal-content a {
+  color: var(--color-accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.legal-content a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.legal-footer {
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border);
+}
+
+.legal-footer p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+@media (max-width: 767px) {
+  .legal-main {
+    padding-block: var(--space-8);
+  }
+
+  .legal-container {
+    width: min(100% - 16px, 900px);
+  }
+
+  .legal-content {
+    padding: var(--space-3);
+  }
+
+  .legal-content section + section {
+    margin-top: var(--space-6);
+  }
+
+  .legal-content h2 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Buttons inside legal content */
+.legal-content .btn-primary {
+    color: var(--color-white);
+    text-decoration: none;
+}
+
+.legal-content .btn-primary:hover {
+    color: var(--color-white);
+}
+
+/* =========================================================
+   Payment Workflow Foundation
+   Sprint 16.1
+   ========================================================= */
+
+.payment-workflow {
+    margin-top: var(--space-6);
+}
+
+.payment-status-card {
+    padding: var(--space-5);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-card);
+    background: var(--color-surface);
+}
+
+.payment-status-label {
+    display: block;
+    margin-bottom: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.payment-status-value {
+    margin: 0;
+    color: var(--color-heading);
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.payment-action {
+    width: 100%;
+    margin-top: var(--space-5);
+}
+
+.payment-action .btn-primary {
+    color: var(--color-white);
+    text-decoration: none;
+}
+
+.payment-action .btn-primary:hover {
+    color: var(--color-white);
+}
+
+.payment-reference {
+    width: 100%;
+    margin-top: var(--space-3);
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-input);
+    background: var(--color-background);
+    color: var(--color-text);
+    font: inherit;
+    line-height: 1.5;
+    resize: vertical;
+}
+
+.payment-reference:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.payment-help-text {
+    margin-top: var(--space-2);
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+    .payment-status-card {
+        padding: var(--space-4) var(--space-3);
+    }
+
+    .payment-action {
+        width: 100%;
+        margin-top: var(--space-4);
+    }
+}
+
+/* Payment Details — Internal Spacing */
+.payment-instructions {
+    margin-top: var(--space-5);
+}
+
+.payment-details {
+    margin-top: var(--space-5);
+}
+
+.payment-summary {
+    display: grid;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+}
+
+.payment-summary p {
+    margin: 0;
+}
+
+.order-support-note {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    opacity: 0.8;
+}
+
+.payment-wallet-address {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-4);
+}
+
+.payment-wallet-address code {
+    flex: 1;
+    min-width: 0;
+    padding: var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-input);
+    background: var(--color-background);
+    overflow-wrap: anywhere;
+}
+
+#payment-form {
+    display: grid;
+    gap: var(--space-5);
+}
+
+#payment-form .form-group {
+    display: grid;
+    gap: var(--space-2);
+}
+
+#payment-form label {
+    margin: 0;
+    color: var(--color-heading);
+    font-weight: 600;
+}
+
+#payment-form input[type="file"] {
+    width: 100%;
+}
+
+#payment-form .payment-help-text {
+    margin: 0;
+}
+
+.payment-optional {
+    color: var(--color-text-muted);
+    font-weight: 400;
+}
+
+@media (max-width: 640px) {
+    .payment-wallet-address {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .payment-wallet-address code {
+        width: 100%;
+    }
+
+    .payment-wallet-address .btn {
+        width: 100%;
+    }
+
+    #payment-form .form-group {
+        min-width: 0;
+    }
+
+    #payment-form input,
+    #payment-form input[type="file"] {
+        box-sizing: border-box;
+        max-width: 100%;
+    }
+
+    #payment-reference {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    #payment-form .btn {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .payment-instructions {
+        width: 100%;
+    }
+
+    #continue-to-payment {
+        display: flex;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        margin: 0;
+        box-sizing: border-box;
+        padding-inline: var(--space-4);
+        font-size: 0.9375rem;
+        font-weight: 400;
+    }
+
+    .payment-page .legal-section > p > .btn {
+        display: flex;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        white-space: normal;
+        text-align: center;
+        font-size: 0.875rem;
+        font-weight: 400;
+    }
+}

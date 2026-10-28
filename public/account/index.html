@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, follow">
+    <meta name="theme-color" content="#0B0F19">
+    <title>My Account | NexProxy</title>
+    <meta name="description" content="Sign in to manage your NexProxy account profile and security settings.">
+    <link rel="icon" href="../logo/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="../logo/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/account.css">
+    <link rel="stylesheet" href="../assets/css/account-google.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <nav class="navbar" aria-label="Main navigation">
+                <a href="../" class="logo" aria-label="NexProxy home">
+                    <img src="../logo/nexproxy-logo.svg" alt="NexProxy">
+                </a>
+                <ul class="nav-menu">
+                    <li><a href="../">Home</a></li>
+                    <li><a href="../blog/">Blog Post</a></li>
+                    <li><a href="../order/review/">Review Order</a></li>
+                    <li><a href="../#features">Features</a></li>
+                    <li><a href="../#pricing">Pricing</a></li>
+                    <li><a href="../#faq">FAQ</a></li>
+                    <li><a href="../#contact">Contact</a></li>
+                </ul>
+                <button class="nav-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false">
+                    <span></span><span></span><span></span>
+                </button>
+                <div class="nav-auth-actions" aria-label="Account actions">
+                    <a href="../account/?view=signin" class="btn btn-secondary">Sign In</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="account-main">
+        <div class="container">
+            <section class="account-view account-loading" id="account-loading" aria-live="polite">
+                <div class="account-card">
+                    <p class="section-eyebrow">NexProxy account</p>
+                    <h1>Loading your account…</h1>
+                    <p class="account-lead">Connecting securely to the account service.</p>
+                    <p class="account-message account-message-error" id="account-load-error" role="alert" hidden></p>
+                </div>
+            </section>
+
+            <section class="account-view" id="account-auth-view" aria-labelledby="account-auth-title" hidden>
+                <div class="account-card account-auth-card">
+                    <div class="account-heading">
+                        <p class="section-eyebrow">NexProxy account</p>
+                        <h1 id="account-auth-title">Manage your account</h1>
+                        <p class="account-lead">Sign in to view your profile and account settings, or create an account.</p>
+                    </div>
+
+                    <div class="account-tabs" role="tablist" aria-label="Account access">
+                        <button class="account-tab" type="button" role="tab" aria-selected="true" data-auth-tab="signin">Sign in</button>
+                        <button class="account-tab" type="button" role="tab" aria-selected="false" data-auth-tab="signup">Create account</button>
+                    </div>
+
+                    <div class="account-social-auth" aria-label="Social account access">
+                        <button class="account-google-button" id="google-signin-button" type="button">
+                            <svg class="google-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.35 12.27c0-.72-.06-1.42-.18-2.09H12v3.96h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.26Z"/><path fill="#34A853" d="M12 21.7c2.63 0 4.84-.87 6.45-2.37l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.53A9.74 9.74 0 0 0 12 21.7Z"/><path fill="#FBBC05" d="M6.54 13.77A5.85 5.85 0 0 1 6.24 12c0-.61.1-1.2.3-1.77V7.7H3.3A9.73 9.73 0 0 0 2.26 12c0 1.57.38 3.06 1.04 4.3l3.24-2.53Z"/><path fill="#EA4335" d="M12 6.2c1.43 0 2.72.49 3.73 1.45l2.8-2.8C16.84 3.28 14.63 2.3 12 2.3a9.74 9.74 0 0 0-8.7 5.4l3.24 2.53C7.31 7.92 9.46 6.2 12 6.2Z"/></svg>
+                            <span>Sign in with Google</span>
+                        </button>
+                        <button class="account-google-button" id="google-signup-button" type="button" hidden>
+                            <svg class="google-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.35 12.27c0-.72-.06-1.42-.18-2.09H12v3.96h5.24a4.48 4.48 0 0 1-1.94 2.94v2.45h3.14c1.84-1.69 2.91-4.18 2.91-7.26Z"/><path fill="#34A853" d="M12 21.7c2.63 0 4.84-.87 6.45-2.37l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.53A9.74 9.74 0 0 0 12 21.7Z"/><path fill="#FBBC05" d="M6.54 13.77A5.85 5.85 0 0 1 6.24 12c0-.61.1-1.2.3-1.77V7.7H3.3A9.73 9.73 0 0 0 2.26 12c0 1.57.38 3.06 1.04 4.3l3.24-2.53Z"/><path fill="#EA4335" d="M12 6.2c1.43 0 2.72.49 3.73 1.45l2.8-2.8C16.84 3.28 14.63 2.3 12 2.3a9.74 9.74 0 0 0-8.7 5.4l3.24 2.53C7.31 7.92 9.46 6.2 12 6.2Z"/></svg>
+                            <span>Sign Up with Google</span>
+                        </button>
+                        <button class="account-google-button" id="github-signin-button" type="button">
+                            <svg class="github-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.11.79-.25.79-.56v-2.16c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.57-.29-5.27-1.29-5.27-5.73 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.17 1.19A11 11 0 0 1 12 5.93c.98 0 1.96.13 2.88.39 2.2-1.5 3.17-1.19 3.17-1.19.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.11 0 4.45-2.71 5.44-5.29 5.73.41.36.78 1.07.78 2.16v3.2c0 .31.21.67.8.55A11.5 11.5 0 0 0 12 .5Z"/></svg>
+                            <span>Sign in with GitHub</span>
+                        </button>
+                        <button class="account-google-button" id="github-signup-button" type="button" hidden>
+                            <svg class="github-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.11.79-.25.79-.56v-2.16c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.2 1.77 1.2 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.57-.29-5.27-1.29-5.27-5.73 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.17 1.19A11 11 0 0 1 12 5.93c.98 0 1.96.13 2.88.39 2.2-1.5 3.17-1.19 3.17-1.19.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.11 0 4.45-2.71 5.44-5.29 5.73.41.36.78 1.07.78 2.16v3.2c0 .31.21.67.8.55A11.5 11.5 0 0 0 12 .5Z"/></svg>
+                            <span>Sign Up with GitHub</span>
+                        </button>
+                    </div>
+
+                    <div class="account-divider" aria-hidden="true"><span>or continue with email</span></div>
+
+                    <form class="account-form" id="account-signin-form" novalidate>
+                        <div class="account-field">
+                            <label for="signin-email">Email</label>
+                            <input id="signin-email" name="email" type="email" autocomplete="email" required maxlength="254">
+                        </div>
+                        <div class="account-field">
+                            <label for="signin-password">Password</label>
+                            <input id="signin-password" name="password" type="password" autocomplete="current-password" required>
+                        </div>
+                        <button class="btn btn-primary account-submit" type="submit">Sign in</button>
+                        <button class="account-text-button" id="show-reset-request" type="button">Forgot your password?</button>
+                    </form>
+
+                    <form class="account-form" id="account-signup-form" novalidate hidden>
+                        <div class="account-field">
+                            <label for="signup-name">Full name</label>
+                            <input id="signup-name" name="full_name" type="text" autocomplete="name" required maxlength="100">
+                        </div>
+                        <div class="account-field">
+                            <label for="signup-email">Email</label>
+                            <input id="signup-email" name="email" type="email" autocomplete="email" required maxlength="254">
+                        </div>
+                        <div class="account-field">
+                            <label for="signup-password">Password</label>
+                            <input id="signup-password" name="password" type="password" autocomplete="new-password" minlength="8" required>
+                            <small>Use at least 8 characters, or follow any stricter requirement shown by the account service.</small>
+                        </div>
+                        <button class="btn btn-primary account-submit" type="submit">Create account</button>
+                    </form>
+
+                    <p class="account-message" id="account-auth-message" role="status" aria-live="polite" hidden></p>
+                    <p class="account-privacy-note">Your password is handled by the secure account service and is never stored by this page.</p>
+                </div>
+            </section>
+
+            <section class="account-view" id="account-recovery-view" aria-labelledby="account-recovery-title" hidden>
+                <div class="account-card account-auth-card">
+                    <p class="section-eyebrow">Account security</p>
+                    <h1 id="account-recovery-title">Reset your password</h1>
+                    <p class="account-lead" id="account-recovery-lead">Enter the email address on your account and we’ll send a password reset link if an account matches.</p>
+
+                    <form class="account-form" id="account-reset-request-form" novalidate>
+                        <div class="account-field">
+                            <label for="reset-email">Email</label>
+                            <input id="reset-email" name="email" type="email" autocomplete="email" required maxlength="254">
+                        </div>
+                        <button class="btn btn-primary account-submit" type="submit">Send reset link</button>
+                        <button class="account-text-button" data-back-to-signin type="button">Back to sign in</button>
+                    </form>
+
+                    <form class="account-form" id="account-set-password-form" novalidate hidden>
+                        <div class="account-field">
+                            <label for="new-password">New password</label>
+                            <input id="new-password" name="password" type="password" autocomplete="new-password" minlength="8" required>
+                        </div>
+                        <div class="account-field">
+                            <label for="confirm-new-password">Confirm new password</label>
+                            <input id="confirm-new-password" name="password_confirmation" type="password" autocomplete="new-password" minlength="8" required>
+                        </div>
+                        <button class="btn btn-primary account-submit" type="submit">Update password</button>
+                    </form>
+                    <p class="account-message" id="account-recovery-message" role="status" aria-live="polite" hidden></p>
+                </div>
+            </section>
+
+            <section class="account-view" id="account-dashboard-view" aria-labelledby="account-dashboard-title" hidden>
+                <div class="account-dashboard-heading">
+                    <div>
+                        <p class="section-eyebrow">NexProxy account</p>
+                        <h1 id="account-dashboard-title">Profile &amp; settings</h1>
+                        <p class="account-lead">Manage the profile information and security settings for your account.</p>
+                    </div>
+                    <button class="btn btn-secondary" id="account-signout" type="button">Sign out</button>
+                </div>
+
+                <div class="account-dashboard-grid">
+                    <section class="account-card" aria-labelledby="profile-title">
+                        <h2 id="profile-title">Profile information</h2>
+                        <dl class="account-details">
+                            <div><dt>Account email</dt><dd id="account-user-email">—</dd></div>
+                            <div><dt>Member since</dt><dd id="account-created-at">—</dd></div>
+                        </dl>
+                        <form class="account-form" id="account-profile-form" novalidate>
+                            <div class="account-field">
+                                <label for="profile-name">Full name</label>
+                                <input id="profile-name" name="full_name" type="text" autocomplete="name" maxlength="100">
+                            </div>
+                            <div class="account-field">
+                                <label for="profile-phone">Phone (optional)</label>
+                                <input id="profile-phone" name="phone" type="tel" autocomplete="tel" maxlength="40">
+                            </div>
+                            <button class="btn btn-primary account-submit" type="submit">Save profile</button>
+                            <p class="account-message" id="account-profile-message" role="status" aria-live="polite" hidden></p>
+                        </form>
+                    </section>
+
+                    <section class="account-card" aria-labelledby="password-title">
+                        <h2 id="password-title">Change password</h2>
+                        <p class="account-card-description">Choose a new password for your account. The account service may apply additional password rules.</p>
+                        <form class="account-form" id="account-password-form" novalidate>
+                            <div class="account-field">
+                                <label for="change-password">New password</label>
+                                <input id="change-password" name="password" type="password" autocomplete="new-password" minlength="8" required>
+                            </div>
+                            <div class="account-field">
+                                <label for="confirm-change-password">Confirm new password</label>
+                                <input id="confirm-change-password" name="password_confirmation" type="password" autocomplete="new-password" minlength="8" required>
+                            </div>
+                            <button class="btn btn-secondary account-submit" type="submit">Update password</button>
+                            <p class="account-message" id="account-password-message" role="status" aria-live="polite" hidden></p>
+                        </form>
+                    </section>
+                </div>
+
+                <p class="account-security-note">Only the signed-in account can update its own profile through Supabase Auth. Profile details are not used to grant administrator access.</p>
+            </section>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container account-footer">
+            <a href="../">NexProxy</a>
+            <nav aria-label="Legal links">
+                <a href="../terms/">Terms of Service</a>
+                <a href="../privacy/">Privacy Policy</a>
+                <a href="../refund-policy/">Refund &amp; Replacement</a>
+            </nav>
+        </div>
+    </footer>
+
+    <script src="../assets/js/config.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="../assets/js/main.js"></script>
+    <script defer src="../assets/js/account.js"></script>
+</body>
+</html>

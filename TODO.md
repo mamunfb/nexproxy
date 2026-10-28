@@ -1,0 +1,8 @@
+
+## Authentication gate for ordering
+
+- [x] Homepage pricing-এর সব plan Choose/Start CTA এবং Custom pricing CTA এখন আগে active Supabase session যাচাই করে; signed-out user-কে Account Sign In form-এ পাঠায়।
+- [x] Signed-out user সরাসরি `/order/`, `/order/review/` বা `/payment/` খুললেও Account Sign In page-এ redirect হয়।
+- [x] Successful email/password, Google/GitHub OAuth এবং instantly-created signup session-এর পরে original order/payment URL-এ automatic return হয়; signup email confirmation callback-এও destination রাখা হয়।
+- [x] সব front-facing menu থেকে Sign Up button সরিয়ে শুধু Sign In button রাখা হয়েছে। Account page-এর internal Create account tab এখনও available আছে।
+- [x] Shared auth guard, account redirect logic, menu state এবং JavaScript syntax যাচাই করা হয়েছে।

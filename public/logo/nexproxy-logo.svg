@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 160" role="img" aria-labelledby="title desc">
+  <title id="title">NexProxy primary logo</title>
+  <desc id="desc">NexProxy geometric logo mark and wordmark.</desc>
+  <g transform="translate(0,0) scale(.72)">
+    <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path fill="#2563EB" stroke="#2563EB" d="M72 20h28l68 80-20 40h-28L52 60z"/>
+      <path fill="#3B82F6" stroke="#3B82F6" d="M168 20h28l-56 64-20-24z"/>
+      <path fill="#0F172A" stroke="#0F172A" d="M82 55l38 25-38 25z"/>
+      <path stroke="#2563EB" stroke-width="8" d="M20 58h22M12 80h30M20 102h22M198 58h22M206 80h22M198 102h22"/>
+    </g>
+  </g>
+  <text x="210" y="102" font-family="Space Grotesk, Inter, Arial, sans-serif" font-size="76" font-weight="600" letter-spacing="-3">
+    <tspan fill="#0F172A">Nex</tspan><tspan fill="#2563EB">Proxy</tspan>
+  </text>
+</svg>

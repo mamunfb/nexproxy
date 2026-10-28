@@ -1,0 +1,52 @@
+{
+  "routes": [
+    {
+      "path": "/acceptable-use/",
+      "title": "Acceptable Use Policy | NexProxy"
+    },
+    {
+      "path": "/account/",
+      "title": "My Account | NexProxy"
+    },
+    {
+      "path": "/admin/",
+      "title": "NexProxy Admin"
+    },
+    {
+      "path": "/",
+      "title": "NexProxy | Premium USA Mobile Proxies"
+    },
+    {
+      "path": "/blog/",
+      "title": "Proxy Insights Blog | NexProxy"
+    },
+    {
+      "path": "/blog/:slug/",
+      "title": "Proxy Insight Post | NexProxy"
+    },
+    {
+      "path": "/order/",
+      "title": "Place Your Order | NexProxy"
+    },
+    {
+      "path": "/order/review/",
+      "title": "Review Order | NexProxy"
+    },
+    {
+      "path": "/payment/",
+      "title": "Payment | NexProxy"
+    },
+    {
+      "path": "/privacy/",
+      "title": "Privacy Policy | NexProxy"
+    },
+    {
+      "path": "/refund-policy/",
+      "title": "Refund &amp; Replacement Policy | NexProxy"
+    },
+    {
+      "path": "/terms/",
+      "title": "Terms of Service | NexProxy"
+    }
+  ]
+}

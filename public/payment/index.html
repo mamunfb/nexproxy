@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Payment | NexProxy</title>
+
+    <meta
+        name="description"
+        content="Complete your NexProxy order payment."
+    >
+
+    <!-- Favicon -->
+    <link rel="icon" href="../logo/favicon.ico">
+    <link
+        rel="icon"
+        type="image/svg+xml"
+        href="../logo/favicon.svg"
+    >
+    <link
+        rel="apple-touch-icon"
+        href="../logo/apple-touch-icon.png"
+    >
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/legal.css">
+
+</head>
+
+<body class="payment-page">
+
+    <header class="site-header">
+        <div class="container">
+            <nav class="navbar" aria-label="Main navigation">
+                <a href="../" class="logo" aria-label="NexProxy home">
+                    <img src="../logo/nexproxy-logo.svg" alt="NexProxy">
+                </a>
+                <ul class="nav-menu">
+                    <li><a href="../">Home</a></li>
+                    <li><a href="../blog/">Blog Post</a></li>
+                    <li><a href="../order/review/">Review Order</a></li>
+                    <li><a href="../#features">Features</a></li>
+                    <li><a href="../#pricing">Pricing</a></li>
+                    <li><a href="../#faq">FAQ</a></li>
+                    <li><a href="../#contact">Contact</a></li>
+                </ul>
+                <button class="nav-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false">
+                    <span></span><span></span><span></span>
+                </button>
+                <div class="nav-auth-actions" aria-label="Account actions">
+                    <a href="../account/?view=signin" class="btn btn-secondary">Sign In</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+
+    <main>
+
+        <section class="legal-page">
+
+            <div class="container">
+
+                <div class="legal-header">
+
+                    <span class="section-eyebrow">
+                        Payment
+                    </span>
+
+                    <h1>
+                        Complete Your Payment
+                    </h1>
+
+                    <p>
+                        Your order has been created successfully.
+                    Follow the payment instructions below when payment is required.
+                    Free Trial orders require no payment.
+                    </p>
+
+                </div>
+
+
+                <div class="legal-content">
+
+
+                    <!-- Order Summary -->
+
+                    <section class="legal-section">
+
+                        <h2>
+                            Order Summary
+                        </h2>
+
+                        <div class="payment-summary">
+
+                            <p>
+                                <strong>Order ID:</strong>
+                                <span id="payment-order-id">—</span>
+                            </p>
+
+                            <p class="order-support-note">
+                                Please save your Order ID. If you need help with your order or payment,
+                                provide this Order ID when contacting our support team.
+                            </p>
+
+                            <p>
+                                <strong>Plan:</strong>
+                                <span id="payment-plan">—</span>
+                            </p>
+
+                            <p>
+                                <strong>Amount:</strong>
+                                <span id="payment-price">—</span>
+                            </p>
+
+                        </div>
+
+                    </section>
+
+
+                    <!-- Payment Status -->
+
+                    <!-- Payment Status -->
+
+                    <section class="legal-section">
+                        <h2>
+                            Payment Status
+                        </h2>
+
+                        <div
+                            class="payment-workflow"
+                            aria-live="polite"
+                        >
+                            <div class="payment-status-card">
+                                <span class="payment-status-label">
+                                    Current Status
+                                </span>
+
+                                <p
+                                    id="payment-status-value"
+                                    class="payment-status-value"
+                                >
+                                    Awaiting Payment
+                                </p>
+
+                                <p
+                                    id="payment-status-message"
+                                    class="payment-help-text"
+                                >
+                                    Your order is ready for payment.
+                                    Payment instructions will appear here
+                                    when an approved payment method is available.
+                                </p>
+                                <div id="payment-action"  class="payment-action">
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Processing Information -->
+
+                    <section class="legal-section">
+
+                        <h2>
+                            What Happens After Payment?
+                        </h2>
+
+                        <ol>
+
+                            <li>
+                                Your payment will be verified.
+                            </li>
+
+                            <li>
+                                A suitable USA mobile proxy will be
+                                manually selected and tested.
+                            </li>
+
+                            <li>
+                                Your proxy will be assigned to your order.
+                            </li>
+
+                            <li>
+                                Proxy details will be delivered through
+                                Telegram or email.
+                            </li>
+
+                        </ol>
+
+                        <p>
+                            Proxy delivery is not instant. After payment
+                            verification for paid orders, or trial confirmation
+                            for a Free Trial, your proxy details will be manually
+                            prepared and delivered within
+                            <strong>24 hours</strong>.
+                        </p>
+
+                    </section>
+
+
+                    <!-- Support -->
+
+                    <section class="legal-section">
+
+                        <h2>
+                            Need Help?
+                        </h2>
+
+                        <p>
+                            If you have questions about payment or your
+                            order, contact our support team on Telegram.
+                        </p>
+
+                        <p>
+
+                            <a
+                                href="https://t.me/NexProxyHQ"
+                                class="btn btn-primary"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Contact Support on Telegram
+                            </a>
+
+                        </p>
+
+                    </section>
+
+
+                    <!-- Current Launch Notice -->
+
+                    <section class="legal-section">
+
+                        <div class="payment-notice" id="payment-crypto-notice">
+
+                            <strong>
+                                Important:
+                            </strong>
+
+                            <p>
+                                Cryptocurrency payment is currently available through
+                                USDT TRC20. Follow the payment instructions above and
+                                submit your Transaction ID (TXID) after payment.
+                            </p>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer class="site-footer">
+
+        <div class="container">
+
+            <div class="footer-bottom">
+
+                <p>
+                    &copy; 2026 NexProxy. All rights reserved.
+                </p>
+
+                <p>
+                    Premium USA Mobile Proxies
+                </p>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+    <script src="../assets/js/payment.js" defer></script>
+    <script src="../assets/js/config.js"></script>
+
+    <script src="../assets/js/config.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="../assets/js/auth-guard.js" defer></script>
+</body>
+</html>

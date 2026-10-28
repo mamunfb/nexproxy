@@ -1,0 +1,2071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="robots"
+        content="noindex,nofollow"
+    >
+
+    <title>NexProxy Admin</title>
+
+    <link
+        rel="stylesheet"
+        href="../assets/css/admin.css"
+    >
+    <link
+        rel="stylesheet"
+        href="../assets/css/blog-admin.css"
+    >
+</head>
+
+<body>
+
+    <!-- =========================================================
+         ADMIN APPLICATION
+         ========================================================= -->
+
+    <div
+        id="admin-app"
+        class="admin-app"
+    >
+
+        <!-- =====================================================
+             LOGIN VIEW
+             ===================================================== -->
+
+        <section
+            id="admin-login-view"
+            class="admin-view admin-login-view"
+            aria-labelledby="admin-login-title"
+        >
+
+            <div class="admin-login-card">
+
+                <div class="admin-brand">
+                    <img
+                        src="../logo/nexproxy-mark.svg"
+                        alt="NexProxy"
+                        class="admin-brand-mark"
+                    >
+
+                    <div>
+                        <p class="admin-eyebrow">
+                            Administration
+                        </p>
+
+                        <h1 id="admin-login-title">
+                            NexProxy Admin
+                        </h1>
+                    </div>
+                </div>
+
+                <p class="admin-login-description">
+                    Sign in to manage orders, payments,
+                    proxy assignments, and subscriptions.
+                </p>
+
+                <form
+                    id="admin-login-form"
+                    method="post"
+                    novalidate
+                >
+
+                    <div class="admin-form-group">
+
+                        <label for="admin-login-email">
+                            Email
+                        </label>
+
+                        <input
+                            type="email"
+                            id="admin-login-email"
+                            name="email"
+                            autocomplete="username"
+                            required
+                        >
+
+                    </div>
+
+                    <div class="admin-form-group">
+
+                        <label for="admin-login-password">
+                            Password
+                        </label>
+
+                        <input
+                            type="password"
+                            id="admin-login-password"
+                            name="password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="admin-btn admin-btn-primary admin-btn-block"
+                        id="admin-login-submit"
+                    >
+                        Login
+                    </button>
+
+                    <p
+                        id="admin-login-message"
+                        class="admin-form-message"
+                        aria-live="polite"
+                    ></p>
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             ACCESS DENIED VIEW
+             ===================================================== -->
+
+        <section
+            id="admin-access-denied-view"
+            class="admin-view admin-access-denied-view is-hidden"
+            aria-labelledby="admin-access-denied-title"
+        >
+
+            <div class="admin-state-card">
+
+                <div class="admin-state-icon">
+                    !
+                </div>
+
+                <h1 id="admin-access-denied-title">
+                    Access Denied
+                </h1>
+
+                <p>
+                    Your account is authenticated but is not
+                    authorized to access the NexProxy Admin Panel.
+                </p>
+
+                <button
+                    type="button"
+                    class="admin-btn admin-btn-secondary"
+                    id="admin-access-denied-logout"
+                >
+                    Sign Out
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             DASHBOARD VIEW
+             ===================================================== -->
+
+        <section
+            id="admin-dashboard-view"
+            class="admin-view admin-dashboard-view is-hidden"
+            aria-labelledby="admin-dashboard-title"
+        >
+
+            <!-- =================================================
+                 HEADER
+                 ================================================= -->
+
+            <header class="admin-header">
+
+                <div class="admin-header-brand">
+
+                    <img
+                        src="../logo/nexproxy-mark.svg"
+                        alt=""
+                        class="admin-header-mark"
+                    >
+
+                    <div>
+                        <p class="admin-eyebrow">
+                            Administration
+                        </p>
+
+                        <h1 id="admin-dashboard-title">
+                            NexProxy Admin
+                        </h1>
+                    </div>
+
+                </div>
+
+                <div class="admin-header-actions">
+
+                    <span
+                        id="admin-current-user"
+                        class="admin-current-user"
+                    ></span>
+
+                    <button
+                        type="button"
+                        class="admin-btn admin-btn-secondary"
+                        id="admin-logout"
+                    >
+                        Logout
+                    </button>
+
+                </div>
+
+            </header>
+
+
+            <!-- =================================================
+                 MAIN CONTENT
+                 ================================================= -->
+
+            <main class="admin-main">
+
+
+                <!-- =============================================
+                     OVERVIEW
+                     ============================================= -->
+
+                <section
+                    class="admin-section"
+                    id="admin-overview-section"
+                >
+
+                    <div class="admin-section-heading">
+
+                        <div>
+                            <p class="admin-eyebrow">
+                                Overview
+                            </p>
+
+                            <h2>
+                                Operations
+                            </h2>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="admin-btn admin-btn-secondary"
+                            id="admin-refresh-dashboard"
+                        >
+                            Refresh
+                        </button>
+
+                    </div>
+
+
+                    <div class="admin-stats-grid">
+
+                        <article
+                            class="admin-stat-card"
+                            data-stat="pending-payments"
+                        >
+                            <span class="admin-stat-label">
+                                Pending Payments
+                            </span>
+
+                            <strong
+                                id="stat-pending-payments"
+                                class="admin-stat-value"
+                            >
+                                —
+                            </strong>
+                        </article>
+
+
+                        <article
+                            class="admin-stat-card"
+                            data-stat="active"
+                        >
+                            <span class="admin-stat-label">
+                                Active
+                            </span>
+
+                            <strong
+                                id="stat-active"
+                                class="admin-stat-value"
+                            >
+                                —
+                            </strong>
+                        </article>
+
+
+                        <article
+                            class="admin-stat-card admin-stat-warning"
+                            data-stat="expiring-soon"
+                        >
+                            <span class="admin-stat-label">
+                                Expiring Soon
+                            </span>
+
+                            <strong
+                                id="stat-expiring-soon"
+                                class="admin-stat-value"
+                            >
+                                —
+                            </strong>
+                        </article>
+
+
+                        <article
+                            class="admin-stat-card"
+                            data-stat="expired"
+                        >
+                            <span class="admin-stat-label">
+                                Expired
+                            </span>
+
+                            <strong
+                                id="stat-expired"
+                                class="admin-stat-value"
+                            >
+                                —
+                            </strong>
+                        </article>
+
+
+                        <article
+                            class="admin-stat-card"
+                            data-stat="trials"
+                        >
+                            <span class="admin-stat-label">
+                                Trials
+                            </span>
+
+                            <strong
+                                id="stat-trials"
+                                class="admin-stat-value"
+                            >
+                                —
+                            </strong>
+                        </article>
+
+
+                        <article
+                            class="admin-stat-card"
+                            data-stat="replaced"
+                        >
+                            <span class="admin-stat-label">
+                                Replaced
+                            </span>
+
+                            <strong
+                                id="stat-replaced"
+                                class="admin-stat-value"
+                            >
+                                —
+                            </strong>
+                        </article>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =============================================
+                     CUSTOMER / SUBSCRIPTION MANAGEMENT
+                     ============================================= -->
+
+                <section
+                    class="admin-section"
+                    id="admin-customers-section"
+                >
+
+                    <div class="admin-section-heading">
+
+                        <div>
+                            <p class="admin-eyebrow">
+                                Customers
+                            </p>
+
+                            <h2>
+                                Subscription Management
+                            </h2>
+                        </div>
+
+                    </div>
+
+
+                    <div class="admin-toolbar">
+
+                        <div class="admin-toolbar-group">
+
+                            <label
+                                for="customer-filter"
+                                class="admin-toolbar-label"
+                            >
+                                Filter
+                            </label>
+
+                            <select
+                                id="customer-filter"
+                                name="customerFilter"
+                                class="admin-select"
+                            >
+                                <option value="ALL">
+                                    All
+                                </option>
+
+                                <option value="ACTIVE">
+                                    Active
+                                </option>
+
+                                <option value="EXPIRING_SOON">
+                                    Expiring Soon
+                                </option>
+
+                                <option value="ASSIGNED">
+                                    Assigned
+                                </option>
+
+                                <option value="TRIAL">
+                                    Trial
+                                </option>
+
+                                <option value="EXPIRED">
+                                    Expired
+                                </option>
+
+                                <option value="REPLACED">
+                                    Replaced
+                                </option>
+                            </select>
+
+                        </div>
+
+
+                        <div class="admin-toolbar-group admin-search-group">
+
+                            <label
+                                for="customer-search"
+                                class="admin-toolbar-label"
+                            >
+                                Search
+                            </label>
+
+                            <input
+                                type="search"
+                                id="customer-search"
+                                name="customerSearch"
+                                class="admin-input"
+                                placeholder="Order ID, name, email, Telegram, proxy..."
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="customer-table-message"
+                        class="admin-table-message"
+                        aria-live="polite"
+                    ></div>
+
+
+                    <div class="admin-table-wrapper">
+
+                        <table
+                            class="admin-table"
+                            id="customer-table"
+                        >
+
+                            <thead>
+
+                                <tr>
+
+                                    <th scope="col">
+                                        Customer
+                                    </th>
+
+                                    <th scope="col">
+                                        Contact
+                                    </th>
+
+                                    <th scope="col">
+                                        Order
+                                    </th>
+
+                                    <th scope="col">
+                                        Proxy
+                                    </th>
+
+                                    <th scope="col">
+                                        Type
+                                    </th>
+
+                                    <th scope="col">
+                                        Start
+                                    </th>
+
+                                    <th scope="col">
+                                        Expiry
+                                    </th>
+
+                                    <th scope="col">
+                                        Status
+                                    </th>
+
+                                    <th scope="col">
+                                        Action
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="customer-table-body">
+
+                                <!-- Dynamic customer rows -->
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+                <!-- =============================================
+                    PROXY INVENTORY
+                    ============================================= -->
+
+                <section
+                    class="admin-section"
+                    id="admin-proxy-inventory-section"
+                >
+
+                    <div class="admin-section-heading">
+
+                        <div>
+                            <p class="admin-eyebrow">
+                                Fulfillment
+                            </p>
+
+                            <h2>
+                                Proxy Inventory
+                            </h2>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="admin-btn admin-btn-primary"
+                            id="admin-add-proxy"
+                        >
+                            Add Proxy
+                        </button>
+
+                    </div>
+
+
+                    <div class="admin-toolbar">
+
+                        <div class="admin-toolbar-group">
+
+                            <label
+                                for="proxy-inventory-filter"
+                                class="admin-toolbar-label"
+                            >
+                                Filter
+                            </label>
+
+                            <select
+                                id="proxy-inventory-filter"
+                                name="proxyInventoryFilter"
+                                class="admin-select"
+                            >
+
+                                <option value="ALL">
+                                    All
+                                </option>
+
+                                <option value="AVAILABLE">
+                                    Available
+                                </option>
+
+                                <option value="ASSIGNED">
+                                    Assigned
+                                </option>
+
+                                <option value="DISABLED">
+                                    Disabled
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="admin-toolbar-group admin-search-group">
+
+                            <label
+                                for="proxy-inventory-search"
+                                class="admin-toolbar-label"
+                            >
+                                Search
+                            </label>
+
+                            <input
+                                type="search"
+                                id="proxy-inventory-search"
+                                name="proxyInventorySearch"
+                                class="admin-input"
+                                placeholder="Proxy name or number..."
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="proxy-inventory-table-message"
+                        class="admin-table-message"
+                        aria-live="polite"
+                    ></div>
+
+
+                    <div class="admin-table-wrapper">
+
+                        <table
+                            class="admin-table"
+                            id="proxy-inventory-table"
+                        >
+
+                            <thead>
+
+                                <tr>
+
+                                    <th scope="col">
+                                        Proxy Name
+                                    </th>
+
+                                    <th scope="col">
+                                        Proxy Number
+                                    </th>
+
+                                    <th scope="col">
+                                        Status
+                                    </th>
+
+                                    <th scope="col">
+                                        Created
+                                    </th>
+
+                                    <th scope="col">
+                                        Updated
+                                    </th>
+
+                                    <th scope="col">
+                                        Action
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="proxy-inventory-table-body">
+
+                                <!-- Dynamic inventory rows -->
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+                    <!-- Payment Settings -->
+
+                <section class="admin-section" id="admin-payment-settings-section">
+                    <div class="admin-section-heading">
+                        <div>
+                            <p class="admin-eyebrow">Configuration</p>
+                            <h2>Payment Settings</h2>
+                        </div>
+
+                        <button
+                            type="button"
+                            class="admin-btn admin-btn-primary"
+                            id="admin-edit-payment-settings"
+                        >
+                            Edit Payment Settings
+                        </button>
+                    </div>
+
+                    <div
+                        id="payment-settings-message"
+                        class="admin-table-message"
+                        aria-live="polite"
+                    ></div>
+
+                    <div class="admin-detail-grid" id="payment-settings-card">
+                        <div class="admin-detail-item">
+                            <span class="admin-detail-label">Payment Method</span>
+                            <strong id="payment-settings-method">—</strong>
+                        </div>
+
+                        <div class="admin-detail-item">
+                            <span class="admin-detail-label">Network</span>
+                            <strong id="payment-settings-network">—</strong>
+                        </div>
+
+                        <div class="admin-detail-item">
+                            <span class="admin-detail-label">Wallet Address</span>
+                            <code id="payment-settings-wallet">—</code>
+                        </div>
+
+                        <div class="admin-detail-item">
+                            <span class="admin-detail-label">Status</span>
+                            <strong id="payment-settings-status">—</strong>
+                        </div>
+
+                        <div class="admin-detail-item">
+                            <span class="admin-detail-label">Last Updated</span>
+                            <span id="payment-settings-updated">—</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- =============================================
+                     PAYMENT REVIEW
+                     ============================================= -->
+
+                <section
+                    class="admin-section"
+                    id="admin-payments-section"
+                >
+
+                    <div class="admin-section-heading">
+
+                        <div>
+                            <p class="admin-eyebrow">
+                                Payments
+                            </p>
+
+                            <h2>
+                                Payment Review
+                            </h2>
+                        </div>
+
+                    </div>
+
+
+                    <div class="admin-toolbar">
+
+                        <div class="admin-toolbar-group">
+
+                            <label
+                                for="payment-filter"
+                                class="admin-toolbar-label"
+                            >
+                                Filter
+                            </label>
+
+                            <select
+                                id="payment-filter"
+                                name="paymentFilter"
+                                class="admin-select"
+                            >
+
+                                <option value="SUBMITTED">
+                                    Payment Submitted
+                                </option>
+
+                                <option value="VERIFIED">
+                                    Payment Verified
+                                </option>
+
+                                <option value="ALL">
+                                    All Payments
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="payment-table-message"
+                        class="admin-table-message"
+                        aria-live="polite"
+                    ></div>
+
+
+                    <div class="admin-table-wrapper">
+
+                        <table
+                            class="admin-table"
+                            id="payment-table"
+                        >
+
+                            <thead>
+
+                                <tr>
+
+                                    <th scope="col">
+                                        Customer
+                                    </th>
+
+                                    <th scope="col">
+                                        Order
+                                    </th>
+
+                                    <th scope="col">
+                                        Amount
+                                    </th>
+
+                                    <th scope="col">
+                                        Method
+                                    </th>
+
+                                    <th scope="col">
+                                        TXID
+                                    </th>
+
+                                    <th scope="col">
+                                        Proof
+                                    </th>
+
+                                    <th scope="col">
+                                        Status
+                                    </th>
+
+                                    <th scope="col">
+                                        Action
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="payment-table-body">
+
+                                <!-- Dynamic payment rows -->
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+
+                <!-- =============================================
+                     ACTIVITY LOG
+                     ============================================= -->
+
+                <section
+                    class="admin-section"
+                    id="admin-activity-section"
+                >
+
+                    <div class="admin-section-heading">
+
+                        <div>
+                            <p class="admin-eyebrow">
+                                Audit
+                            </p>
+
+                            <h2>
+                                Activity Log
+                            </h2>
+                        </div>
+
+                    </div>
+
+
+                    <div class="admin-table-wrapper">
+
+                        <table
+                            class="admin-table"
+                            id="activity-table"
+                        >
+
+                            <thead>
+
+                                <tr>
+
+                                    <th scope="col">
+                                        Time
+                                    </th>
+
+                                    <th scope="col">
+                                        Admin
+                                    </th>
+
+                                    <th scope="col">
+                                        Action
+                                    </th>
+
+                                    <th scope="col">
+                                        Entity
+                                    </th>
+
+                                    <th scope="col">
+                                        Details
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="activity-table-body">
+
+                                <!-- Dynamic activity rows -->
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </section>
+
+                <section class="admin-section admin-blog-section" id="admin-blog-section">
+                    <div class="admin-section-heading">
+                        <div>
+                            <p class="admin-eyebrow">Content</p>
+                            <h2>Blog Management</h2>
+                        </div>
+                        <button type="button" class="admin-btn admin-btn-secondary" id="blog-new-post">New Post</button>
+                    </div>
+
+                    <div id="blog-admin-message" class="admin-table-message" aria-live="polite"></div>
+
+                    <div class="blog-admin-editor is-hidden" id="blog-admin-editor">
+                        <form id="blog-post-form" class="blog-admin-form">
+                            <input type="hidden" id="blog-post-id">
+                            <div class="blog-admin-form-grid">
+                                <label>Title<input id="blog-post-title" required maxlength="220"></label>
+                                <label>Slug<input id="blog-post-slug" maxlength="160" placeholder="auto-generated-from-title"></label>
+                                <label>Category<input id="blog-post-category" maxlength="100" value="Proxy insights"></label>
+                                <label>Read time<input id="blog-post-read-time" maxlength="40" value="5 min read"></label>
+                            </div>
+                            <label>Excerpt<textarea id="blog-post-excerpt" rows="3" maxlength="500" required></textarea></label>
+                            <label>Content <span class="blog-admin-help">Separate paragraphs with a blank line.</span><textarea id="blog-post-content" rows="10" required></textarea></label>
+                            <label class="blog-admin-checkbox"><input type="checkbox" id="blog-post-published" checked> Published</label>
+                            <div class="blog-admin-form-actions"><button type="submit" class="admin-btn admin-btn-primary" id="blog-post-save">Save Post</button><button type="button" class="admin-btn admin-btn-secondary" id="blog-post-cancel">Cancel</button></div>
+                        </form>
+                    </div>
+
+                    <div class="admin-table-wrapper blog-admin-table-wrapper">
+                        <table class="admin-table" id="blog-posts-table">
+                            <thead><tr><th>Post</th><th>Status</th><th>Updated</th><th>Action</th></tr></thead>
+                            <tbody id="blog-posts-table-body"><tr><td colspan="4">Loading posts…</td></tr></tbody>
+                        </table>
+                    </div>
+
+                    <div class="admin-section-heading blog-comments-heading"><div><p class="admin-eyebrow">Moderation</p><h3>Visitor Comments</h3></div></div>
+                    <div class="admin-table-wrapper blog-admin-table-wrapper">
+                        <table class="admin-table" id="blog-comments-table">
+                            <thead><tr><th>Comment</th><th>Post</th><th>Status</th><th>Action</th></tr></thead>
+                            <tbody id="blog-comments-table-body"><tr><td colspan="4">Loading comments…</td></tr></tbody>
+                        </table>
+                    </div>
+                </section>
+
+            </main>
+
+        </section>
+
+
+        <!-- =====================================================
+             CUSTOMER DETAIL MODAL
+             ===================================================== -->
+
+        <div
+            id="customer-detail-modal"
+            class="admin-modal is-hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="customer-detail-title"
+        >
+
+            <div class="admin-modal-backdrop"></div>
+
+            <div class="admin-modal-dialog">
+
+                <div class="admin-modal-header">
+
+                    <div>
+
+                        <p class="admin-eyebrow">
+                            Customer
+                        </p>
+
+                        <h2 id="customer-detail-title">
+                            Customer Details
+                        </h2>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="admin-modal-close"
+                        id="customer-detail-close"
+                        aria-label="Close customer details"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="customer-detail-content"
+                    class="admin-modal-content"
+                >
+
+                    <!-- Dynamic customer details -->
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             PROOF VIEWER MODAL
+             ===================================================== -->
+
+        <div
+            id="payment-proof-modal"
+            class="admin-modal is-hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="payment-proof-title"
+        >
+
+            <div class="admin-modal-backdrop"></div>
+
+            <div class="admin-modal-dialog admin-modal-dialog-proof">
+
+                <div class="admin-modal-header">
+
+                    <div>
+
+                        <p class="admin-eyebrow">
+                            Payment
+                        </p>
+
+                        <h2 id="payment-proof-title">
+                            Payment Proof
+                        </h2>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="admin-modal-close"
+                        id="payment-proof-close"
+                        aria-label="Close payment proof"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="payment-proof-content"
+                    class="admin-modal-content admin-proof-content"
+                >
+
+                    <!-- Dynamic proof -->
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- =====================================================
+        ADD PROXY MODAL
+        ===================================================== -->
+
+        <div
+            id="add-proxy-modal"
+            class="admin-modal is-hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-proxy-title"
+        >
+
+            <div class="admin-modal-backdrop"></div>
+
+            <div class="admin-modal-dialog">
+
+                <div class="admin-modal-header">
+
+                    <div>
+
+                        <p class="admin-eyebrow">
+                            Fulfillment
+                        </p>
+
+                        <h2 id="add-proxy-title">
+                            Add Proxy
+                        </h2>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="admin-modal-close"
+                        id="add-proxy-close"
+                        aria-label="Close add proxy"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+
+                <form
+                    id="add-proxy-form"
+                    novalidate
+                >
+
+                    <div class="admin-form-group">
+
+                        <label for="add-proxy-name">
+                            Proxy Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="add-proxy-name"
+                            name="proxyName"
+                            maxlength="120"
+                            autocomplete="off"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="admin-form-group">
+
+                        <label for="add-proxy-number">
+                            Proxy Number
+                        </label>
+
+                        <input
+                            type="text"
+                            id="add-proxy-number"
+                            name="proxyNumber"
+                            maxlength="120"
+                            autocomplete="off"
+                            required
+                        >
+
+                    </div>
+
+
+                    <p
+                        id="add-proxy-message"
+                        class="admin-form-message"
+                        aria-live="polite"
+                    ></p>
+
+
+                    <div class="admin-modal-actions">
+
+                        <button
+                            type="button"
+                            class="admin-btn admin-btn-secondary"
+                            id="add-proxy-cancel"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="admin-btn admin-btn-primary"
+                            id="add-proxy-submit"
+                        >
+                            Add Proxy
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        <!-- Edit Proxy Modal -->
+        <div
+            id="edit-proxy-modal"
+            class="admin-modal is-hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-proxy-title"
+        >
+            <div class="admin-modal-backdrop"></div>
+
+            <div class="admin-modal-dialog">
+                <div class="admin-modal-header">
+                    <div>
+                        <p class="admin-eyebrow">Fulfillment</p>
+                        <h2 id="edit-proxy-title">Edit Proxy</h2>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="admin-modal-close"
+                        id="edit-proxy-close"
+                        aria-label="Close edit proxy"
+                    >
+                        ×
+                    </button>
+                </div>
+
+                <form
+                    id="edit-proxy-form"
+                    novalidate
+                >
+                    <div class="admin-form-group">
+                        <label for="edit-proxy-name">
+                            Proxy Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="edit-proxy-name"
+                            name="proxyName"
+                            maxlength="120"
+                            autocomplete="off"
+                            required
+                        >
+                    </div>
+
+                    <div class="admin-form-group">
+                        <label for="edit-proxy-number">
+                            Proxy Number
+                        </label>
+
+                        <input
+                            type="text"
+                            id="edit-proxy-number"
+                            name="proxyNumber"
+                            maxlength="120"
+                            autocomplete="off"
+                            required
+                        >
+                    </div>
+
+                    <p
+                        id="edit-proxy-message"
+                        class="admin-form-message"
+                        aria-live="polite"
+                    ></p>
+
+                    <div class="admin-modal-actions">
+                        <button
+                            type="button"
+                            class="admin-btn admin-btn-secondary"
+                            id="edit-proxy-cancel"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="admin-btn admin-btn-primary"
+                            id="edit-proxy-submit"
+                        >
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- =====================================================
+             ASSIGN PROXY MODAL
+             ===================================================== -->
+
+        <div
+            id="assign-proxy-modal"
+            class="admin-modal is-hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="assign-proxy-title"
+        >
+
+            <div class="admin-modal-backdrop"></div>
+
+            <div class="admin-modal-dialog">
+
+                <div class="admin-modal-header">
+
+                    <div>
+
+                        <p class="admin-eyebrow">
+                            Fulfillment
+                        </p>
+
+                        <h2 id="assign-proxy-title">
+                            Assign Proxy
+                        </h2>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="admin-modal-close"
+                        id="assign-proxy-close"
+                        aria-label="Close proxy assignment"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+
+                <form
+                    id="assign-proxy-form"
+                    class="admin-modal-content"
+                >
+
+                    <input
+                        type="hidden"
+                        id="assign-proxy-order-id"
+                        name="orderId"
+                    >
+
+
+                    <div class="admin-form-group">
+
+                        <label for="assign-proxy-nickname">
+                            Proxy Nickname *
+                        </label>
+
+                        <input
+                            type="text"
+                            id="assign-proxy-nickname"
+                            name="proxyNickname"
+                            required
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <div class="admin-form-group">
+
+                        <label for="assign-proxy-number">
+                            Proxy Number *
+                        </label>
+
+                        <input
+                            type="text"
+                            id="assign-proxy-number"
+                            name="proxyNumber"
+                            required
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <div class="admin-form-row">
+
+                        <div class="admin-form-group">
+
+                            <label for="assign-proxy-host">
+                                Host
+                            </label>
+
+                            <input
+                                type="text"
+                                id="assign-proxy-host"
+                                name="host"
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+
+                        <div class="admin-form-group">
+
+                            <label for="assign-proxy-port">
+                                Port
+                            </label>
+
+                            <input
+                                type="text"
+                                id="assign-proxy-port"
+                                name="port"
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="admin-form-row">
+
+                        <div class="admin-form-group">
+
+                            <label for="assign-proxy-type">
+                                Assignment Type *
+                            </label>
+
+                            <select
+                                id="assign-proxy-type"
+                                name="assignmentType"
+                                required
+                            >
+
+                                <option value="ASSIGNED">
+                                    Assigned
+                                </option>
+
+                                <option value="TRIAL">
+                                    Trial
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="admin-form-group">
+
+                            <label for="assign-proxy-duration">
+                                Duration (Days) *
+                            </label>
+
+                            <input
+                                type="number"
+                                id="assign-proxy-duration"
+                                name="durationDays"
+                                min="1"
+                                value="30"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="assign-proxy-message"
+                        class="admin-form-message"
+                        aria-live="polite"
+                    ></div>
+
+
+                    <div class="admin-modal-actions">
+
+                        <button
+                            type="button"
+                            class="admin-btn admin-btn-secondary"
+                            id="assign-proxy-cancel"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="admin-btn admin-btn-primary"
+                            id="assign-proxy-submit"
+                        >
+                            Assign Proxy
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+     REPAIR FULFILLMENT MODAL
+     ===================================================== -->
+
+        <div
+            id="repair-fulfillment-modal"
+            class="admin-modal is-hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="repair-fulfillment-title"
+        >
+            <div class="admin-modal-backdrop"></div>
+
+            <div class="admin-modal-dialog">
+
+                <div class="admin-modal-header">
+
+                    <div>
+
+                        <p class="admin-eyebrow">
+                            Fulfillment
+                        </p>
+
+                        <h2 id="repair-fulfillment-title">
+                            Repair Fulfillment
+                        </h2>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="admin-modal-close"
+                        id="repair-fulfillment-close"
+                        aria-label="Close fulfillment repair"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+                <form
+                    id="repair-fulfillment-form"
+                    class="admin-modal-content"
+                >
+
+                    <input
+                        type="hidden"
+                        id="repair-fulfillment-order-id"
+                        name="orderId"
+                    >
+
+                    <div class="admin-form-group">
+
+                        <label for="repair-fulfillment-order-display">
+                            Order ID
+                        </label>
+
+                        <input
+                            type="text"
+                            id="repair-fulfillment-order-display"
+                            readonly
+                        >
+
+                    </div>
+
+                    <div class="admin-form-group">
+
+                        <label for="repair-fulfillment-proxy-display">
+                            Active Proxy
+                        </label>
+
+                        <input
+                            type="text"
+                            id="repair-fulfillment-proxy-display"
+                            readonly
+                        >
+
+                    </div>
+
+                    <p class="admin-help-text">
+                        This will synchronize the fulfillment record with
+                        the active proxy assignment. Delivery status and
+                        delivery fields will not be changed.
+                    </p>
+
+                    <div
+                        id="repair-fulfillment-message"
+                        class="admin-form-message"
+                        aria-live="polite"
+                    ></div>
+
+                    <div class="admin-modal-actions">
+
+                        <button
+                            type="button"
+                            class="admin-btn admin-btn-secondary"
+                            id="repair-fulfillment-cancel"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="admin-btn admin-btn-primary"
+                            id="repair-fulfillment-submit"
+                        >
+                            Repair Fulfillment
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+        <!-- =====================================================
+             EXTENSION MODAL
+             ===================================================== -->
+
+        <div
+            id="extension-modal"
+            class="admin-modal is-hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="extension-title"
+        >
+
+            <div class="admin-modal-backdrop"></div>
+
+            <div class="admin-modal-dialog">
+
+                <div class="admin-modal-header">
+
+                    <div>
+
+                        <p class="admin-eyebrow">
+                            Subscription
+                        </p>
+
+                        <h2 id="extension-title">
+                            Extend Subscription
+                        </h2>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="admin-modal-close"
+                        id="extension-close"
+                        aria-label="Close extension form"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+
+                <form
+                    id="extension-form"
+                    class="admin-modal-content"
+                >
+
+                    <input
+                        type="hidden"
+                        id="extension-assignment-id"
+                        name="assignmentId"
+                    >
+
+
+                    <div
+                        id="extension-current-expiry"
+                        class="admin-info-box"
+                    >
+                        Current expiry: —
+                    </div>
+
+
+                    <div class="admin-form-group">
+
+                        <label for="extension-days">
+                            Extension Days *
+                        </label>
+
+                        <input
+                            type="number"
+                            id="extension-days"
+                            name="extensionDays"
+                            min="1"
+                            max="365"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="admin-form-group">
+
+                        <label for="extension-reason">
+                            Reason
+                        </label>
+
+                        <textarea
+                            id="extension-reason"
+                            name="reason"
+                            rows="4"
+                            placeholder="e.g. Technical issue"
+                        ></textarea>
+
+                    </div>
+
+
+                    <div
+                        id="extension-message"
+                        class="admin-form-message"
+                        aria-live="polite"
+                    ></div>
+
+
+                    <div class="admin-modal-actions">
+
+                        <button
+                            type="button"
+                            class="admin-btn admin-btn-secondary"
+                            id="extension-cancel"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="admin-btn admin-btn-primary"
+                            id="extension-submit"
+                        >
+                            Add Extension
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             REPLACEMENT MODAL
+             ===================================================== -->
+
+        <div
+            id="replacement-modal"
+            class="admin-modal is-hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="replacement-title"
+        >
+
+            <div class="admin-modal-backdrop"></div>
+
+            <div class="admin-modal-dialog">
+
+                <div class="admin-modal-header">
+
+                    <div>
+
+                        <p class="admin-eyebrow">
+                            Proxy
+                        </p>
+
+                        <h2 id="replacement-title">
+                            Replace Proxy
+                        </h2>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="admin-modal-close"
+                        id="replacement-close"
+                        aria-label="Close replacement form"
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+
+                <form
+                    id="replacement-form"
+                    class="admin-modal-content"
+                >
+
+                    <input
+                        type="hidden"
+                        id="replacement-assignment-id"
+                        name="assignmentId"
+                    >
+
+
+                    <div
+                        id="replacement-current-proxy"
+                        class="admin-info-box"
+                    >
+                        Current proxy: —
+                    </div>
+
+
+                    <div class="admin-form-group">
+
+                        <label for="replacement-proxy-nickname">
+                            New Proxy Nickname *
+                        </label>
+
+                        <input
+                            type="text"
+                            id="replacement-proxy-nickname"
+                            name="proxyNickname"
+                            required
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <div class="admin-form-group">
+
+                        <label for="replacement-proxy-number">
+                            New Proxy Number *
+                        </label>
+
+                        <input
+                            type="text"
+                            id="replacement-proxy-number"
+                            name="proxyNumber"
+                            required
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+                    <div class="admin-form-row">
+
+                        <div class="admin-form-group">
+
+                            <label for="replacement-proxy-host">
+                                Host
+                            </label>
+
+                            <input
+                                type="text"
+                                id="replacement-proxy-host"
+                                name="host"
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+
+                        <div class="admin-form-group">
+
+                            <label for="replacement-proxy-port">
+                                Port
+                            </label>
+
+                            <input
+                                type="text"
+                                id="replacement-proxy-port"
+                                name="port"
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        id="replacement-message"
+                        class="admin-form-message"
+                        aria-live="polite"
+                    ></div>
+
+
+                    <div class="admin-modal-actions">
+
+                        <button
+                            type="button"
+                            class="admin-btn admin-btn-secondary"
+                            id="replacement-cancel"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="admin-btn admin-btn-primary"
+                            id="replacement-submit"
+                        >
+                            Replace Proxy
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             GLOBAL TOAST / STATUS
+             ===================================================== -->
+
+        <div
+            id="admin-toast"
+            class="admin-toast is-hidden"
+            role="status"
+            aria-live="polite"
+        ></div>
+
+        <!-- =====================================================
+             Wallet Address Settings Modal
+             ===================================================== -->
+
+        <div
+            class="admin-modal is-hidden"
+            id="payment-settings-modal"
+            aria-hidden="true"
+        >
+            <div class="admin-modal-backdrop"></div>
+
+            <div class="admin-modal-dialog">
+                <div class="admin-modal-header">
+                    <div>
+                        <p class="admin-eyebrow">Configuration</p>
+                        <h2>Edit Payment Settings</h2>
+                    </div>
+
+                    <button
+                        type="button"
+                        class="admin-modal-close"
+                        id="payment-settings-modal-close"
+                        aria-label="Close"
+                    >
+                        &times;
+                    </button>
+                </div>
+
+                <div class="admin-modal-content">
+                    <form id="payment-settings-form">
+                        <div class="admin-form-group">
+                            <label for="payment-settings-method-input">
+                                Payment Method
+                            </label>
+
+                            <input
+                                type="text"
+                                id="payment-settings-method-input"
+                                name="paymentMethod"
+                                value="USDT"
+                                readonly
+                            >
+                        </div>
+
+                        <div class="admin-form-group">
+                            <label for="payment-settings-network-input">
+                                Network
+                            </label>
+
+                            <input
+                                type="text"
+                                id="payment-settings-network-input"
+                                name="network"
+                                value="TRC20"
+                                readonly
+                            >
+                        </div>
+
+                        <div class="admin-form-group">
+                            <label for="payment-settings-wallet-input">
+                                Wallet Address
+                            </label>
+
+                            <input
+                                type="text"
+                                id="payment-settings-wallet-input"
+                                name="walletAddress"
+                                autocomplete="off"
+                                required
+                            >
+                        </div>
+
+                        <div class="admin-form-group">
+                            <label for="payment-settings-enabled-input">
+                                Status
+                            </label>
+
+                            <select
+                                id="payment-settings-enabled-input"
+                                name="enabled"
+                            >
+                                <option value="true">Enabled</option>
+                                <option value="false">Disabled</option>
+                            </select>
+                        </div>
+
+                        <p
+                            id="payment-settings-form-message"
+                            class="admin-form-message"
+                            aria-live="polite"
+                        ></p>
+
+                        <div class="admin-modal-actions">
+                            <button
+                                type="button"
+                                class="admin-btn admin-btn-secondary"
+                                id="payment-settings-cancel"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                type="submit"
+                                class="admin-btn admin-btn-primary"
+                                id="payment-settings-save"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         SCRIPTS
+         ========================================================= -->
+
+    <script
+        src="../assets/js/config.js"
+    ></script>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+        defer
+    ></script>
+
+    <script
+        src="../assets/js/admin.js"
+        defer
+    ></script>
+    <script
+        src="../assets/js/blog-admin.js"
+        defer
+    ></script>
+
+</body>
+</html>

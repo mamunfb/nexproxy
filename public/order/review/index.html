@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+    <meta
+        name="description"
+        content="Review your NexProxy order details before payment."
+    >
+
+    <title>Review Order | NexProxy</title>
+
+    <link rel="icon" href="../../logo/favicon.ico">
+    <link
+        rel="icon"
+        type="image/svg+xml"
+        href="../../logo/favicon.svg"
+    >
+    <link
+        rel="apple-touch-icon"
+        href="../../logo/apple-touch-icon.png"
+    >
+
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/order-review.css">
+</head>
+
+<body class="order-page review-page">
+
+    <header class="site-header">
+        <div class="container">
+            <nav class="navbar" aria-label="Main navigation">
+                <a href="../../" class="logo" aria-label="NexProxy home">
+                    <img src="../../logo/nexproxy-logo.svg" alt="NexProxy">
+                </a>
+                <ul class="nav-menu">
+                    <li><a href="../../">Home</a></li>
+                    <li><a href="../../blog/">Blog Post</a></li>
+                    <li><a href="../../order/review/">Review Order</a></li>
+                    <li><a href="../../#features">Features</a></li>
+                    <li><a href="../../#pricing">Pricing</a></li>
+                    <li><a href="../../#faq">FAQ</a></li>
+                    <li><a href="../../#contact">Contact</a></li>
+                </ul>
+                <button class="nav-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false">
+                    <span></span><span></span><span></span>
+                </button>
+                <div class="nav-auth-actions" aria-label="Account actions">
+                    <a href="../../account/?view=signin" class="btn btn-secondary">Sign In</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="order-hero review-hero">
+            <div class="container">
+                <div class="order-heading">
+                    <p class="eyebrow">Order Review</p>
+
+                    <h1>Review Your Order</h1>
+
+                    <p>
+                        Check your order details carefully before
+                        continuing to payment.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <section class="order-section">
+            <div class="container">
+                <div class="review-layout">
+
+                    <div class="review-main">
+
+                        <section
+                            class="review-card"
+                            aria-labelledby="order-details-heading"
+                        >
+                            <div class="review-card-header">
+                                <p class="review-step">Step 1</p>
+                                <h2 id="order-details-heading">
+                                    Order Details
+                                </h2>
+                            </div>
+
+                            <dl class="review-details">
+                                <div class="review-detail-row">
+                                    <dt>Order ID</dt>
+                                    <dd id="review-order-id">Creating…</dd>
+                                </div>
+
+                                <div class="review-detail-row">
+                                    <dt>Plan</dt>
+                                    <dd id="review-plan">—</dd>
+                                </div>
+
+                                <div class="review-detail-row">
+                                    <dt>Duration</dt>
+                                    <dd id="review-duration">—</dd>
+                                </div>
+
+                                <div class="review-detail-row">
+                                    <dt>Price</dt>
+                                    <dd id="review-price">—</dd>
+                                </div>
+
+                                <div class="review-detail-row">
+                                    <dt>Country</dt>
+                                    <dd id="review-country">—</dd>
+                                </div>
+                            </dl>
+
+                            <div
+                                class="review-notice"
+                                id="trial-credit-note"
+                                hidden
+                            >
+                                <strong>Free Trial</strong>
+                                <p>
+                                    Your 10-minute Free Trial costs $0. No payment
+                                    is required for this order.
+                                </p>
+                            </div>
+                        </section>
+
+                        <section
+                            class="review-card"
+                            aria-labelledby="customer-details-heading"
+                        >
+                            <div class="review-card-header">
+                                <p class="review-step">Step 2</p>
+                                <h2 id="customer-details-heading">
+                                    Customer Details
+                                </h2>
+                            </div>
+
+                            <dl class="review-details">
+                                <div class="review-detail-row">
+                                    <dt>Full Name</dt>
+                                    <dd id="review-name">—</dd>
+                                </div>
+
+                                <div class="review-detail-row">
+                                    <dt>Email</dt>
+                                    <dd id="review-email">—</dd>
+                                </div>
+
+                                <div class="review-detail-row">
+                                    <dt>Telegram</dt>
+                                    <dd id="review-telegram">—</dd>
+                                </div>
+
+                                <div class="review-detail-row">
+                                    <dt>Intended Use</dt>
+                                    <dd id="review-intended-use">—</dd>
+                                </div>
+
+                                <div class="review-detail-row">
+                                    <dt>Additional Requirements</dt>
+                                    <dd id="review-requirements">None</dd>
+                                </div>
+                            </dl>
+                        </section>
+
+                        <section
+                            class="review-card review-confirmation"
+                            aria-labelledby="next-step-heading"
+                        >
+                            <div class="review-card-header">
+                                <p class="review-step">Step 3</p>
+                                <h2 id="next-step-heading">
+                                    What Happens Next?
+                                </h2>
+                            </div>
+
+                            <p>
+                                After you confirm your order, you will
+                                continue to the payment step. Payment has
+                                not been collected yet.
+                            </p>
+
+                            <p>
+                                After payment is verified, your proxy
+                                details will be delivered through the
+                                agreed delivery channel.
+                            </p>
+                        </section>
+
+                        <div
+                            class="review-actions"
+                            aria-label="Order actions"
+                        >
+                            <a
+                                href="../"
+                                class="button button-secondary"
+                                id="edit-order"
+                            >
+                                Back &amp; Edit
+                            </a>
+
+                            <button
+                                type="button"
+                                class="button button-primary"
+                                id="confirm-order"
+                            >
+                                Confirm Order
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <aside
+                        class="review-sidebar"
+                        aria-label="Order summary"
+                    >
+                        <div class="review-summary-card">
+                            <p class="eyebrow">Order Summary</p>
+
+                            <div class="review-summary-plan">
+                                <span>Selected Plan</span>
+                                <strong id="summary-plan">—</strong>
+                            </div>
+
+                            <div class="review-summary-price">
+                                <span>Total</span>
+                                <strong id="summary-price">—</strong>
+                            </div>
+
+                            <div class="review-summary-country">
+                                <span>Country</span>
+                                <strong id="summary-country">—</strong>
+                            </div>
+
+                            <div class="review-summary-divider"></div>
+
+                            <p>
+                                No payment has been collected on this
+                                review step.
+                            </p>
+
+                            <form id="order-lookup-form" class="order-lookup-form" novalidate>
+                                <label for="order-lookup-id">Review an existing order</label>
+                                <div class="order-lookup-row">
+                                    <input id="order-lookup-id" type="text" placeholder="Enter Order ID" autocomplete="off" required>
+                                    <button type="submit" class="button button-secondary">Review</button>
+                                </div>
+                                <p id="order-lookup-message" class="form-error" role="alert"></p>
+                            </form>
+
+                            <a
+                                href="https://t.me/NexProxyHQ"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Need help? Ask on Telegram
+                            </a>
+                        </div>
+                    </aside>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>
+                    &copy; 2026 NexProxy. All rights reserved.
+                </p>
+
+                <nav
+                    class="footer-legal"
+                    aria-label="Legal navigation"
+                >
+                    <a href="../../terms/">Terms</a>
+                    <a href="../../privacy/">Privacy</a>
+                    <a href="../../refund-policy/">Refund Policy</a>
+                    <a href="../../acceptable-use/">Acceptable Use</a>
+                </nav>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../../assets/js/main.js"></script>
+    <script src="../../assets/js/config.js"></script>
+    <script src="../../assets/js/order-review.js"></script>
+
+    <script src="../../assets/js/config.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="../../assets/js/auth-guard.js" defer></script>
+</body>
+</html>

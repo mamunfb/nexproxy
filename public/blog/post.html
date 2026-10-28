@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy Insights | NexProxy</title>
+    <meta name="description" content="NexProxy proxy insights and practical guides.">
+    <meta name="theme-color" content="#0B0F19">
+    <link rel="icon" href="../../logo/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="../../logo/favicon.svg">
+    <link rel="apple-touch-icon" href="../../logo/apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/blog.css">
+    <link rel="stylesheet" href="../../assets/css/blog-post.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <nav class="navbar" aria-label="Main navigation">
+                <a href="../" class="logo" aria-label="NexProxy home">
+                    <img src="../logo/nexproxy-logo.svg" alt="NexProxy">
+                </a>
+                <ul class="nav-menu">
+                    <li><a href="../">Home</a></li>
+                    <li><a href="../blog/">Blog Post</a></li>
+                    <li><a href="../order/review/">Review Order</a></li>
+                    <li><a href="../#features">Features</a></li>
+                    <li><a href="../#pricing">Pricing</a></li>
+                    <li><a href="../#faq">FAQ</a></li>
+                    <li><a href="../#contact">Contact</a></li>
+                </ul>
+                <button class="nav-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false">
+                    <span></span><span></span><span></span>
+                </button>
+                <div class="nav-auth-actions" aria-label="Account actions">
+                    <a href="../account/?view=signin" class="btn btn-secondary">Sign In</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main id="post-app" class="post-page">
+        <div class="container">
+            <a class="post-back-link" href="../../blog/">← Back to Blog</a>
+            <article class="post-article" aria-live="polite">
+                <div id="post-loading" class="post-loading">Loading post…</div>
+                <div id="post-not-found" class="post-error is-hidden">This post could not be found. <a href="../../blog/">Return to the Blog</a>.</div>
+                <div id="post-content" class="is-hidden">
+                    <div class="post-meta"><span id="post-category"></span><span aria-hidden="true">·</span><span id="post-read-time"></span><span aria-hidden="true">·</span><time id="post-date"></time></div>
+                    <h1 id="post-title"></h1>
+                    <p id="post-excerpt" class="post-excerpt"></p>
+                    <div id="post-body" class="post-body"></div>
+                </div>
+            </article>
+
+            <section class="comments-section" aria-labelledby="comments-title">
+                <div class="comments-heading"><div><span class="section-eyebrow">Join the conversation</span><h2 id="comments-title">Comments</h2></div><span id="comments-count" class="comments-count">0 approved</span></div>
+                <div id="comments-list" class="comments-list"><p class="comments-empty">No comments yet. Start the conversation.</p></div>
+                <div class="comment-form-card">
+                    <h3>Leave a comment</h3>
+                    <p class="comment-form-note">Comments are reviewed before they appear publicly.</p>
+                    <form id="comment-form" class="comment-form">
+                        <div class="comment-form-grid"><label>Name<input id="comment-name" name="name" type="text" maxlength="80" required></label><label>Email <span>(optional)</span><input id="comment-email" name="email" type="email" maxlength="160"></label></div>
+                        <label>Comment<textarea id="comment-content" name="content" rows="5" maxlength="2000" required></textarea></label>
+                        <div class="comment-form-actions"><button class="btn btn-primary" type="submit" id="comment-submit">Post comment</button><p id="comment-message" class="comment-message" aria-live="polite"></p></div>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><a href="../../" class="footer-logo">NexProxy</a><p>Premium USA mobile proxies built for reliability, flexibility, and professional use.</p></div><div class="footer-column"><h2 class="footer-heading">Navigation</h2><ul class="footer-links"><li><a href="../../blog/">Blog Post</a></li><li><a href="../../#features">Features</a></li><li><a href="../../#pricing">Pricing</a></li><li><a href="../../#faq">FAQ</a></li></ul></div><div class="footer-column"><h2 class="footer-heading">Support</h2><ul class="footer-links"><li><a href="https://t.me/NexProxyHQ" target="_blank" rel="noopener noreferrer">Telegram</a></li><li><a href="../../#contact">Contact</a></li></ul></div><div class="footer-column"><h2 class="footer-heading">Legal</h2><ul class="footer-links"><li><a href="../../terms/">Terms of Service</a></li><li><a href="../../privacy/">Privacy Policy</a></li><li><a href="../../acceptable-use/">Acceptable Use</a></li></ul></div></div><div class="footer-bottom"><p>&copy; 2026 NexProxy. All rights reserved.</p><p>Premium USA Mobile Proxies</p></div></div></footer>
+    <script src="../../assets/js/main.js" defer></script>
+    <script src="../../assets/js/blog-post.js" defer></script>
+    <script src="../assets/js/config.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="../assets/js/auth-guard.js" defer></script>
+</body>
+</html>

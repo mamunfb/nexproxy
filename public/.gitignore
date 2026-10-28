@@ -1,0 +1,15 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Local development
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local backup files
+*.before-*
