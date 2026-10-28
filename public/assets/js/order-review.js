@@ -187,52 +187,51 @@ function initReviewActions() {
         confirmButton.setAttribute("aria-busy", "true");
 
         try {
-            const supabasePublishableKey =
-                window.NEXPROXY_SUPABASE_PUBLISHABLE_KEY;
-
-            if (!supabasePublishableKey) {
-                throw new Error(
-                    "Supabase configuration is unavailable."
-                );
+            const supabase = getReviewSupabaseClient();
+            const { data: sessionData, error: sessionError } =
+                await supabase.auth.getSession();
+            if (sessionError) throw sessionError;
+            if (!sessionData?.session?.user) {
+                throw new Error("Please sign in before confirming your order.");
             }
 
-            const response = await fetch(
-                `${window.NEXPROXY_SUPABASE_URL}/functions/v1/dynamic-action`,
+            const location = readIpLocationForOrder(updatedOrder.orderId);
+            const { data: result, error } = await supabase.rpc(
+                "create_customer_order",
                 {
-                    method: "POST",
-                    headers: {
-                        "apikey": supabasePublishableKey,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        orderId: updatedOrder.orderId,
-                        plan: updatedOrder.plan,
-                        planName: updatedOrder.planName,
-                        planPrice: updatedOrder.planPrice,
-                        regularPrice: updatedOrder.regularPrice,
-                        savings: updatedOrder.savings,
-                        discountPercent: updatedOrder.discountPercent,
-                        perProxyPrice: updatedOrder.perProxyPrice,
-                        customQuantity: updatedOrder.customQuantity,
-                        country: updatedOrder.country,
-                        countryCode: updatedOrder.countryCode,
-                        fullName: updatedOrder.fullName,
-                        email: updatedOrder.email,
-                        telegram: updatedOrder.telegram,
-                        intendedUse: updatedOrder.intendedUse,
-                        requirements: updatedOrder.requirements,
-                        termsConsent: updatedOrder.termsConsent
-                    })
+                    p_order_id: updatedOrder.orderId,
+                    p_plan: updatedOrder.plan,
+                    p_plan_name: updatedOrder.planName,
+                    p_plan_price: toOrderNumber(updatedOrder.planPrice),
+                    p_regular_price: toOrderNumber(updatedOrder.regularPrice),
+                    p_savings: toOrderNumber(updatedOrder.savings),
+                    p_discount_percent: toOrderNumber(updatedOrder.discountPercent),
+                    p_per_proxy_price: toOrderNumber(updatedOrder.perProxyPrice),
+                    p_custom_quantity: updatedOrder.customQuantity !== null &&
+                        updatedOrder.customQuantity !== undefined &&
+                        Number.isInteger(Number(updatedOrder.customQuantity))
+                        ? Number(updatedOrder.customQuantity)
+                        : null,
+                    p_country: updatedOrder.country,
+                    p_country_code: updatedOrder.countryCode || null,
+                    p_full_name: updatedOrder.fullName,
+                    p_email: updatedOrder.email,
+                    p_telegram: updatedOrder.telegram || null,
+                    p_intended_use: updatedOrder.intendedUse || null,
+                    p_requirements: updatedOrder.requirements || null,
+                    p_terms_consent: Boolean(updatedOrder.termsConsent),
+                    p_geo_country: location?.country || null,
+                    p_geo_country_code: location?.countryCode || null,
+                    p_geo_region: location?.region || null,
+                    p_geo_city: location?.city || null,
+                    p_geo_latitude: location?.latitude ?? null,
+                    p_geo_longitude: location?.longitude ?? null
                 }
             );
 
-            const result = await response.json();
-
-            if (!response.ok || !result.success) {
-                throw new Error(
-                    result?.error ||
-                    "Unable to create your order."
-                );
+            if (error) throw error;
+            if (!result?.success) {
+                throw new Error("Unable to create your order.");
             }
 
             sessionStorage.setItem(
@@ -242,6 +241,9 @@ function initReviewActions() {
             localStorage.setItem(
                 `nexproxyOrder:${updatedOrder.orderId}`,
                 JSON.stringify(updatedOrder)
+            );
+            sessionStorage.removeItem(
+                `nexproxyIpLocation:${updatedOrder.orderId}`
             );
 
             window.location.href = "../../payment/";
@@ -259,6 +261,75 @@ function initReviewActions() {
             );
         }
     });
+}
+
+function getReviewSupabaseClient() {
+    if (window.NEXPROXY_SUPABASE_CLIENT) {
+        return window.NEXPROXY_SUPABASE_CLIENT;
+    }
+
+    if (
+        typeof window.supabase?.createClient !== "function" ||
+        !window.NEXPROXY_SUPABASE_URL ||
+        !window.NEXPROXY_SUPABASE_PUBLISHABLE_KEY
+    ) {
+        throw new Error("Supabase configuration is unavailable.");
+    }
+
+    window.NEXPROXY_SUPABASE_CLIENT = window.supabase.createClient(
+        window.NEXPROXY_SUPABASE_URL,
+        window.NEXPROXY_SUPABASE_PUBLISHABLE_KEY,
+        {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true
+            }
+        }
+    );
+
+    return window.NEXPROXY_SUPABASE_CLIENT;
+}
+
+function toOrderNumber(value) {
+    if (value === "" || value === null || value === undefined || value === "custom") {
+        return null;
+    }
+    const number = Number(value);
+    return Number.isFinite(number) ? number : null;
+}
+
+function readIpLocationForOrder(orderId) {
+    const key = `nexproxyIpLocation:${orderId}`;
+    const value = sessionStorage.getItem(key);
+    if (!value) return null;
+
+    try {
+        const location = JSON.parse(value);
+        const latitudeSource = location.latitude;
+        const longitudeSource = location.longitude;
+        const latitude = latitudeSource === null || latitudeSource === undefined || latitudeSource === ""
+            ? NaN
+            : Number(latitudeSource);
+        const longitude = longitudeSource === null || longitudeSource === undefined || longitudeSource === ""
+            ? NaN
+            : Number(longitudeSource);
+        return {
+            country: String(location.country || "").slice(0, 100),
+            countryCode: String(location.countryCode || "").toUpperCase().match(/^[A-Z]{2}$/)?.[0] || "",
+            region: String(location.region || "").slice(0, 100),
+            city: String(location.city || "").slice(0, 100),
+            latitude: Number.isFinite(latitude) && latitude >= -90 && latitude <= 90
+                ? latitude
+                : null,
+            longitude: Number.isFinite(longitude) && longitude >= -180 && longitude <= 180
+                ? longitude
+                : null
+        };
+    } catch {
+        sessionStorage.removeItem(key);
+        return null;
+    }
 }
 
 /**

@@ -828,6 +828,7 @@ async function initializeAdminDashboard() {
  */
 const adminDashboardState = {
     orders: [],
+    orderLocations: [],
     assignments: [],
     inventory: [],
     paymentSettings: [],
@@ -850,6 +851,7 @@ async function loadAdminDashboardData() {
 
     const [
     ordersResult,
+    orderLocationsResult,
     assignmentsResult,
     inventoryResult,
     paymentSettingsResult,
@@ -859,6 +861,13 @@ async function loadAdminDashboardData() {
         supabase
             .from("orders")
             .select("*")
+            .order("created_at", {
+                ascending: false
+            }),
+
+        supabase
+            .from("order_ip_locations")
+            .select("order_id,country,country_code,region,city,latitude,longitude")
             .order("created_at", {
                 ascending: false
             }),
@@ -898,24 +907,29 @@ async function loadAdminDashboardData() {
         throw ordersResult.error;
     }
 
-    if (assignmentsResult.error) {
-        throw assignmentsResult.error;
+    if (orderLocationsResult.error) {
+        console.warn("Admin IP-location data is unavailable.", orderLocationsResult.error);
     }
 
-    if (inventoryResult.error) {
-        throw inventoryResult.error;
-    }
+    [
+        ["proxy assignments", assignmentsResult],
+        ["proxy inventory", inventoryResult],
+        ["payment settings", paymentSettingsResult],
+        ["fulfillment status", fulfillmentsResult],
+        ["activity log", activityLogsResult]
+    ].forEach(([label, result]) => {
+        if (result.error) {
+            console.warn(`Admin ${label} data is unavailable.`, result.error);
+        }
+    });
 
-    if (paymentSettingsResult.error) {
-        throw paymentSettingsResult.error;
-    }
+    adminDashboardState.orderLocations =
+        Array.isArray(orderLocationsResult.data)
+            ? orderLocationsResult.data
+            : [];
 
-    if (fulfillmentsResult.error) {
-        throw fulfillmentsResult.error;
-    }
-
-    if (activityLogsResult.error) {
-    throw activityLogsResult.error;
+    if (orderLocationsResult.error) {
+        adminDashboardState.orderLocations = [];
     }
 
     adminDashboardState.orders =
@@ -2773,6 +2787,76 @@ function getAdminFulfillmentForOrder(
     );
 }
 
+function appendAdminIpLocationCard(content, order) {
+    const card = document.createElement("section");
+    card.className = "admin-ip-location-card";
+
+    const heading = document.createElement("h3");
+    heading.textContent = "Approximate IP location (admin only)";
+    card.appendChild(heading);
+
+    const note = document.createElement("p");
+    note.className = "admin-ip-location-note";
+    note.textContent = "Estimated from the customer's public IP; it is not an exact address or GPS location.";
+    card.appendChild(note);
+
+    const location = adminDashboardState.orderLocations.find(
+        (item) => item.order_id === order.order_id
+    );
+
+    if (!location) {
+        const unavailable = document.createElement("p");
+        unavailable.textContent = "No IP-derived location was available for this order.";
+        card.appendChild(unavailable);
+        content.appendChild(card);
+        return;
+    }
+
+    const place = [location.city, location.region, location.country]
+        .filter(Boolean)
+        .join(", ");
+    const details = document.createElement("p");
+    details.className = "admin-ip-location-details";
+    details.textContent = place || "Location details unavailable.";
+    card.appendChild(details);
+
+    const latitude = location.latitude === null || location.latitude === undefined || location.latitude === ""
+        ? NaN
+        : Number(location.latitude);
+    const longitude = location.longitude === null || location.longitude === undefined || location.longitude === ""
+        ? NaN
+        : Number(location.longitude);
+    const hasCoordinates = Number.isFinite(latitude) &&
+        latitude >= -90 && latitude <= 90 &&
+        Number.isFinite(longitude) &&
+        longitude >= -180 && longitude <= 180;
+
+    if (hasCoordinates) {
+        const query = `${latitude},${longitude}`;
+        const map = document.createElement("iframe");
+        map.className = "admin-ip-location-map";
+        map.title = "Approximate customer IP location in Google Maps";
+        map.loading = "lazy";
+        map.referrerPolicy = "no-referrer-when-downgrade";
+        map.src = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=8&output=embed`;
+        card.appendChild(map);
+
+        const mapLink = document.createElement("a");
+        mapLink.className = "admin-btn admin-btn-secondary admin-ip-location-link";
+        mapLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+        mapLink.target = "_blank";
+        mapLink.rel = "noopener noreferrer";
+        mapLink.textContent = "Open approximate location in Google Maps";
+        card.appendChild(mapLink);
+    } else {
+        const noCoordinates = document.createElement("p");
+        noCoordinates.textContent = "The IP lookup returned a country or region but no map coordinates.";
+        card.appendChild(noCoordinates);
+    }
+
+    content.appendChild(card);
+}
+
 
 /**
  * Determine whether fulfillment repair is
@@ -3111,6 +3195,8 @@ function openAdminCustomerDetailModal(
     );
 
     content.appendChild(grid);
+
+    appendAdminIpLocationCard(content, order);
 
 
         /*

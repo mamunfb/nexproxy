@@ -1,10 +1,13 @@
 "use strict";
 
-document.addEventListener("DOMContentLoaded", () => {
+let latestIpLocation = null;
+
+document.addEventListener("DOMContentLoaded", async () => {
     initOrderForm();
-    initCountryDetection();
+    await populateCountryOptions();
     restoreSavedOrder();
     applyPlanQuery();
+    initCountryDetection();
 });
 
 /**
@@ -204,6 +207,11 @@ function prepareOrderReview(form) {
         : null;
     const requestedOrderId = new URLSearchParams(window.location.search).get("orderId");
     const previousOrder = requestedOrderId ? readStoredOrderDraft() : null;
+    const countryControl = form.elements.namedItem("country");
+    const selectedCountry = countryControl?.selectedOptions?.[0] || null;
+    const countryCode = String(
+        selectedCountry?.value || countryControl?.dataset.countryCode || ""
+    ).toUpperCase().match(/^[A-Z]{2}$/)?.[0] || "";
     const orderData = {
         orderId: previousOrder?.orderId || createLocalOrderId(),
         plan: selectedPlan.value,
@@ -214,8 +222,8 @@ function prepareOrderReview(form) {
         discountPercent: isCustom ? customPricing.discountPercent.toFixed(2) : selectedPlan.dataset.planDiscount || "0.00",
         perProxyPrice: isCustom ? customPricing.perProxyPrice.toFixed(2) : selectedPlan.dataset.planQuantity ? (Number(selectedPlan.dataset.planPrice) / Number(selectedPlan.dataset.planQuantity)).toFixed(2) : "0.00",
         customQuantity: isCustom ? customPricing.quantity : null,
-        country: form.country?.value || "Unknown",
-        countryCode: form.country?.dataset.countryCode || "",
+        country: selectedCountry?.dataset.countryName || countryControl?.value?.trim() || "Unknown",
+        countryCode,
         fullName: form.fullName.value.trim(),
         email: form.email.value.trim(),
         telegram: form.telegram.value.trim(),
@@ -234,10 +242,62 @@ function prepareOrderReview(form) {
         JSON.stringify(orderData)
     );
 
+    if (latestIpLocation) {
+        sessionStorage.setItem(
+            `nexproxyIpLocation:${orderData.orderId}`,
+            JSON.stringify(latestIpLocation)
+        );
+    }
+
     /*
     * Continue to the Order Review page.
     */
     window.location.href = `review/?orderId=${encodeURIComponent(orderData.orderId)}`;
+}
+
+async function populateCountryOptions() {
+    const select = document.querySelector("#country");
+    if (!(select instanceof HTMLSelectElement)) return;
+
+    try {
+        const response = await fetch("/assets/data/countries.json", {
+            headers: { Accept: "application/json" }
+        });
+        if (!response.ok) throw new Error("The country list could not be loaded.");
+
+        const countries = await response.json();
+        if (!Array.isArray(countries) || countries.length < 200) {
+            throw new Error("The country list is incomplete.");
+        }
+
+        const options = document.createDocumentFragment();
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "Detecting country…";
+        options.appendChild(placeholder);
+
+        countries.forEach((country) => {
+            const code = String(country?.code || "").toUpperCase();
+            const name = String(country?.name || "").trim();
+            if (!/^[A-Z]{2}$/.test(code) || !name) return;
+
+            const option = document.createElement("option");
+            option.value = code;
+            option.textContent = `${name} (${code})`;
+            option.dataset.countryName = name;
+            options.appendChild(option);
+        });
+
+        select.replaceChildren(options);
+        select.dataset.countryOptionsLoaded = "true";
+        select.addEventListener("change", () => {
+            const summary = document.querySelector("#summary-country");
+            if (summary) summary.textContent = select.selectedOptions[0]?.textContent || "Select a country";
+        });
+    } catch (error) {
+        console.warn("Unable to load the complete country list.", error);
+        useManualCountryInput(select, document.querySelector("#summary-country"));
+    }
 }
 
 async function initCountryDetection() {
@@ -250,33 +310,55 @@ async function initCountryDetection() {
         const response = await fetch("/api/geo", { headers: { Accept: "application/json" } });
         if (response.ok) detectedCountry = normalizeDetectedCountry(await response.json());
     } catch {
-        // The browser-side provider below can still detect country if the app API is unavailable.
+        // The browser-side provider can still detect the visitor's IP region.
     }
 
-    if (!detectedCountry) {
+    if (!detectedCountry || !hasCoordinates(detectedCountry)) {
         try {
-            detectedCountry = await detectCountryFromBrowser();
+            const browserLocation = await detectCountryFromBrowser();
+            if (browserLocation) detectedCountry = { ...detectedCountry, ...browserLocation };
         } catch (error) {
             console.warn("Automatic country detection failed.", error);
         }
     }
 
-    if (select.value && select.value !== "Unknown") return;
-
     if (!detectedCountry) {
-        useManualCountryInput(select, summary);
+        const help = document.querySelector("#country-help");
+        if (help) help.textContent = "Could not detect your country. Choose it from the full list.";
+        if (summary) summary.textContent = "Select a country";
         return;
     }
 
-    const option = document.createElement("option");
-    option.value = detectedCountry.country;
-    option.textContent = detectedCountry.countryCode
-        ? `${detectedCountry.country} (${detectedCountry.countryCode})`
-        : detectedCountry.country;
-    option.selected = true;
-    select.replaceChildren(option);
-    select.dataset.countryCode = detectedCountry.countryCode;
-    if (summary) summary.textContent = option.textContent;
+    latestIpLocation = {
+        country: detectedCountry.country,
+        countryCode: detectedCountry.countryCode,
+        city: detectedCountry.city || "",
+        region: detectedCountry.region || "",
+        latitude: detectedCountry.latitude,
+        longitude: detectedCountry.longitude
+    };
+
+    // Keep the customer's manual choice if it changed while IP lookup was running.
+    if (select.value) return;
+
+    if (select instanceof HTMLSelectElement) {
+        const option = Array.from(select.options).find(
+            (candidate) => candidate.value === detectedCountry.countryCode
+        );
+        if (!option) {
+            const help = document.querySelector("#country-help");
+            if (help) help.textContent = "Could not match the detected region. Choose your country from the full list.";
+            return;
+        }
+        select.value = detectedCountry.countryCode;
+        const help = document.querySelector("#country-help");
+        if (help) help.textContent = "Auto-selected from your IP address. Change it if needed.";
+        if (summary) summary.textContent = option.textContent;
+    } else {
+        select.value = detectedCountry.country;
+        select.dataset.countryCode = detectedCountry.countryCode;
+        if (summary) summary.textContent = detectedCountry.country;
+    }
 }
 
 function normalizeDetectedCountry(data) {
@@ -298,7 +380,28 @@ function normalizeDetectedCountry(data) {
     }
 
     if (!country || /^(unknown|uncommon|n\/a)$/i.test(country)) return null;
-    return { country, countryCode };
+
+    const latitudeSource = data.latitude ?? data.lat;
+    const longitudeSource = data.longitude ?? data.lon ?? data.lng;
+    const latitudeValue = latitudeSource === "" || latitudeSource == null ? NaN : Number(latitudeSource);
+    const longitudeValue = longitudeSource === "" || longitudeSource == null ? NaN : Number(longitudeSource);
+
+    return {
+        country,
+        countryCode,
+        city: String(data.city || "").trim().slice(0, 100),
+        region: String(data.region || data.region_name || "").trim().slice(0, 100),
+        latitude: Number.isFinite(latitudeValue) && latitudeValue >= -90 && latitudeValue <= 90
+            ? Math.round(latitudeValue * 100) / 100
+            : null,
+        longitude: Number.isFinite(longitudeValue) && longitudeValue >= -180 && longitudeValue <= 180
+            ? Math.round(longitudeValue * 100) / 100
+            : null
+    };
+}
+
+function hasCoordinates(location) {
+    return Number.isFinite(location?.latitude) && Number.isFinite(location?.longitude);
 }
 
 async function detectCountryFromBrowser() {
@@ -334,7 +437,7 @@ function useManualCountryInput(select, summary) {
     select.replaceWith(input);
 
     const help = document.querySelector("#country-help");
-    if (help) help.textContent = "Automatic detection is unavailable. Enter your country manually.";
+    if (help) help.textContent = "The country list is unavailable. Enter your country manually.";
     if (summary) summary.textContent = "Enter country";
 }
 
@@ -530,19 +633,30 @@ function restoreSavedOrder() {
     }
 
     if (form.country && orderData.country) {
-        form.country.dataset.countryCode = orderData.countryCode || "";
+        const countryField = form.country;
+        countryField.dataset.countryCode = orderData.countryCode || "";
         let countryLabel = orderData.country;
-        if (form.country instanceof HTMLSelectElement) {
-            const option = document.createElement("option");
-            option.value = orderData.country;
-            option.textContent = orderData.countryCode
-                ? `${orderData.country} (${orderData.countryCode})`
-                : orderData.country;
-            option.selected = true;
-            form.country.replaceChildren(option);
+        if (countryField instanceof HTMLSelectElement) {
+            const savedCode = String(orderData.countryCode || "").toUpperCase();
+            let option = Array.from(countryField.options).find(
+                (candidate) => savedCode && candidate.value === savedCode
+            );
+            option ||= Array.from(countryField.options).find(
+                (candidate) => candidate.dataset.countryName?.toLowerCase() === orderData.country.toLowerCase()
+            );
+            if (!option) {
+                option = document.createElement("option");
+                option.value = savedCode || orderData.country;
+                option.textContent = savedCode
+                    ? `${orderData.country} (${savedCode})`
+                    : orderData.country;
+                option.dataset.countryName = orderData.country;
+                countryField.appendChild(option);
+            }
+            countryField.value = option.value;
             countryLabel = option.textContent;
         } else {
-            form.country.value = orderData.country;
+            countryField.value = orderData.country;
         }
         const summaryCountry = document.querySelector("#summary-country");
         if (summaryCountry) summaryCountry.textContent = countryLabel;
