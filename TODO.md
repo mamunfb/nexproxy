@@ -18,14 +18,15 @@
 
 - [x] সার্ভার `IPINFO_API_TOKEN` environment variable থাকলে IPinfo Lite থেকে দেশ-স্তরের যাচাই করে; token browser-এ পাঠানো বা source/GitHub-এ রাখা হয় না।
 - [x] IPinfo Lite শুধু দেশ/মহাদেশ/ASN তথ্য দেয়; বিদ্যমান শহর, অঞ্চল ও আনুমানিক স্থানাঙ্কের provider অক্ষত থাকে।
-- [ ] Worker publish হওয়ার পর `IPINFO_API_TOKEN`-কে Cloudflare Worker secret হিসেবে যোগ করে live lookup যাচাই করতে হবে; OAuth connected, কিন্তু deployment এখনও হয়নি।
+- [ ] `IPINFO_API_TOKEN` এখনো Cloudflare Worker secret হিসেবে যোগ করা হয়নি; তাই IPinfo Lite live country cross-check চালু নয়। Secret যোগ হলে যাচাই করতে হবে; বর্তমানে বিদ্যমান Cloudflare/IPAPI fallback আছে।
 
 ## Cloudflare Workers hosting প্রস্তুতি
 
 - [x] Existing Node backend-এর API logic পুনর্ব্যবহার করে Cloudflare Worker entrypoint, Node HTTP adapter ও `public/` static-assets binding যোগ করা হয়েছে; সাধারণ Node server mode-ও রাখা হয়েছে।
 - [x] `/blog/<slug>` URL Cloudflare static asset-এর canonical path-এ rewrite হয়; local Wrangler runtime-এ homepage, blog, `/api/health`, `/api/geo`, unauthenticated admin denial ও 404 যাচাই হয়েছে।
 - [x] Wrangler OAuth login সফল; authenticated account ID dashboard link-এর সঙ্গে মিলেছে।
-- [ ] Workers Free/Paid status এখনও নিশ্চিত নয়: dashboard plans page loading-এ আটকে আছে এবং read-only entitlements-এ plan data আসেনি। Plan নিশ্চিত না হওয়া পর্যন্ত deploy হবে না; কোনো DNS বা billing পরিবর্তন করা হয়নি।
+- [x] User Workers Free plan নিশ্চিত করেছেন; account-level `mynexproxy.workers.dev` prefix register করে Worker `nexproxy`-কে `https://nexproxy.mynexproxy.workers.dev`-এ deploy করা হয়েছে। Custom domain, zone DNS record বা paid billing বদলানো হয়নি।
+- [x] Live read-only GET-এ `/`, `/blog/`, `/blog/deployment-smoke-test/` ও `/api/health` 200 দিয়েছে; health-এ `ok=true` এবং Supabase `database=true`।
 
 ## Payment and fulfillment backend (অসম্পূর্ণ)
 
