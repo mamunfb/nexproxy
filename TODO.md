@@ -18,4 +18,16 @@
 
 - [x] সার্ভার `IPINFO_API_TOKEN` environment variable থাকলে IPinfo Lite থেকে দেশ-স্তরের যাচাই করে; token browser-এ পাঠানো বা source/GitHub-এ রাখা হয় না।
 - [x] IPinfo Lite শুধু দেশ/মহাদেশ/ASN তথ্য দেয়; বিদ্যমান শহর, অঞ্চল ও আনুমানিক স্থানাঙ্কের provider অক্ষত থাকে।
-- [ ] Production hosting নির্বাচন করে সেখানে `IPINFO_API_TOKEN` server secret হিসেবে যোগ করতে হবে; তারপর live API lookup যাচাই করতে হবে।
+- [ ] Cloudflare Worker secret হিসেবে `IPINFO_API_TOKEN` যোগ করে live lookup যাচাই করতে হবে; Cloudflare account authorization/deployment এখনও করা হয়নি।
+
+## Cloudflare Workers hosting প্রস্তুতি
+
+- [x] Existing Node backend-এর API logic পুনর্ব্যবহার করে Cloudflare Worker entrypoint, Node HTTP adapter ও `public/` static-assets binding যোগ করা হয়েছে; সাধারণ Node server mode-ও রাখা হয়েছে।
+- [x] `/blog/<slug>` URL Cloudflare static asset-এর canonical path-এ rewrite হয়; local Wrangler runtime-এ homepage, blog, `/api/health`, `/api/geo`, unauthenticated admin denial ও 404 যাচাই হয়েছে।
+- [ ] Cloudflare account-এ Worker publish করতে আলাদা অনুমতি/authorization দরকার; কোনো deploy, custom-domain/DNS বা billing পরিবর্তন করা হয়নি।
+
+## Payment and fulfillment backend (অসম্পূর্ণ)
+
+- [ ] Supabase `dynamic-action` Edge Function-এর `verify_payment`, proof upload এবং fulfillment logic পুনর্গঠন/প্রয়োগ করতে হবে।
+- [ ] Admin RPC (`create_proxy_assignment`, `repair_proxy_fulfillment` প্রভৃতি) ও সংশ্লিষ্ট policy/schema যাচাই করে প্রয়োগ করতে হবে।
+- [ ] Order → payment → admin fulfillment flow Supabase-এ সম্পূর্ণ করে production data-তে write না করে end-to-end যাচাই করতে হবে।

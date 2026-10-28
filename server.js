@@ -6,13 +6,15 @@ const path = require("node:path");
 const { URL } = require("node:url");
 
 const PORT = Number(process.env.PORT || 3000);
-const PUBLIC_DIR = path.join(__dirname, "public");
+const SERVER_DIR = typeof __dirname === "string" ? __dirname : ".";
+const PUBLIC_DIR = path.join(SERVER_DIR, "public");
 const SUPABASE_URL = process.env.NEXPROXY_SUPABASE_URL || "https://mviohrcnkxodltwjqvyy.supabase.co";
 const SUPABASE_KEY = process.env.NEXPROXY_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_11NXDnWbGN15coE7_Yu1Hw_AiUWdool";
 const IPINFO_API_TOKEN = String(process.env.IPINFO_API_TOKEN || "").trim();
 const MAX_BODY_BYTES = 128 * 1024;
 let databaseReady = false;
 let databaseError = null;
+let databaseCheckPromise = null;
 
 const seedPosts = [
   {
@@ -60,12 +62,13 @@ function cleanText(value, maxLength) { return String(value || "").trim().slice(0
 function publicPost(row) { return { id: row.id, slug: row.slug, title: row.title, category: row.category, read_time: row.read_time, excerpt: row.excerpt, content: row.content, published: Boolean(row.published), created_at: row.created_at, updated_at: row.updated_at }; }
 
 function clientIp(req) {
+  if (req.cloudflare) return String(req.headers["cf-connecting-ip"] || req.socket?.remoteAddress || "").trim();
   const forwarded = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim();
-  return forwarded || String(req.headers["x-real-ip"] || req.socket.remoteAddress || "").trim();
+  return forwarded || String(req.headers["x-real-ip"] || req.socket?.remoteAddress || "").trim();
 }
 
 function countryFromHeaders(req) {
-  const value = req.headers["x-vercel-ip-country"] || req.headers["cloudfront-viewer-country"] || req.headers["x-country-code"];
+  const value = req.cloudflare?.cf?.country || req.headers["cf-ipcountry"] || req.headers["x-vercel-ip-country"] || req.headers["cloudfront-viewer-country"] || req.headers["x-country-code"];
   return String(value || "").trim().toUpperCase().match(/^[A-Z]{2}$/)?.[0] || "";
 }
 
@@ -90,16 +93,19 @@ async function lookupIpinfoLite(ip) {
 }
 
 async function detectCountry(req) {
+  const ip = clientIp(req);
+  const isLocalOrMissing = !ip || ip === "::1" || ip.startsWith("127.") || ip.startsWith("10.") || ip.startsWith("192.168.");
+  if (!isLocalOrMissing) {
+    const ipinfoResult = await lookupIpinfoLite(ip);
+    if (ipinfoResult) return ipinfoResult;
+  }
+
   const headerCode = countryFromHeaders(req);
   if (headerCode) return { countryCode: headerCode, country: headerCode, source: "hosting-header" };
 
-  const ip = clientIp(req);
-  if (!ip || ip === "::1" || ip.startsWith("127.") || ip.startsWith("10.") || ip.startsWith("192.168.")) {
+  if (isLocalOrMissing) {
     return { countryCode: "", country: "Unknown", source: "none" };
   }
-
-  const ipinfoResult = await lookupIpinfoLite(ip);
-  if (ipinfoResult) return ipinfoResult;
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 2500);
@@ -116,9 +122,23 @@ async function detectCountry(req) {
 }
 
 async function initializeDatabase() {
-  const result = await supabaseRequest(null, "blog_posts", { select: "id", limit: "1" });
-  if (!Array.isArray(result)) throw new Error("Supabase blog API returned an unexpected response.");
-  databaseReady = true;
+  try {
+    const result = await supabaseRequest(null, "blog_posts", { select: "id", limit: "1" });
+    if (!Array.isArray(result)) throw new Error("Supabase blog API returned an unexpected response.");
+    databaseReady = true;
+    databaseError = null;
+    return true;
+  } catch (error) {
+    databaseReady = false;
+    databaseError = error;
+    throw error;
+  }
+}
+function ensureDatabaseReady() {
+  if (databaseReady) return Promise.resolve(true);
+  if (databaseCheckPromise) return databaseCheckPromise;
+  databaseCheckPromise = initializeDatabase().then(() => true).catch(() => false).finally(() => { databaseCheckPromise = null; });
+  return databaseCheckPromise;
 }
 
 async function supabaseRequest(req, resource, query = {}, method = "GET", body = null, prefer = "") {
@@ -172,8 +192,11 @@ function postInput(body) {
 async function handleApi(req, res, url) {
   const pathname = url.pathname;
   if (req.method === "GET" && pathname === "/api/geo") return jsonResponse(res, 200, await detectCountry(req));
-  if (!databaseReady) return errorResponse(res, 503, databaseError?.message || "Blog storage is not ready.");
-  if (req.method === "GET" && pathname === "/api/health") return jsonResponse(res, 200, { ok: true, database: true });
+  if (req.method === "GET" && pathname === "/api/health") {
+    if (!(await ensureDatabaseReady())) return errorResponse(res, 503, databaseError?.message || "Blog storage is not ready.");
+    return jsonResponse(res, 200, { ok: true, database: true });
+  }
+  if (!(await ensureDatabaseReady())) return errorResponse(res, 503, databaseError?.message || "Blog storage is not ready.");
   if (req.method === "GET" && pathname === "/api/blog/posts") {
     const posts = await supabaseRequest(req, "blog_posts", { select: "*", published: "eq.true", order: "created_at.desc" });
     return jsonResponse(res, 200, { posts: posts.map(publicPost) });
@@ -251,10 +274,29 @@ async function serveStatic(req, res, url) {
   const data = await fs.promises.readFile(filePath); res.writeHead(200, { "Content-Type": contentType(filePath), "Content-Length": data.length }); res.end(data);
 }
 
-const server = http.createServer(async (req, res) => {
-  const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
-  try { if (url.pathname.startsWith("/api/")) await handleApi(req, res, url); else await serveStatic(req, res, url); }
-  catch (error) { console.error("Request error:", error); errorResponse(res, error.status || 500, error.status ? error.message : "Internal server error."); }
-});
-initializeDatabase().catch((error) => { databaseError = error; console.error("Database initialization failed:", error.message); }).finally(() => server.listen(PORT, "0.0.0.0", () => console.log(`NexProxy server listening on 0.0.0.0:${PORT}`)));
-process.on("SIGTERM", async () => { server.close(() => process.exit(0)); });
+function createServer({ serveStaticFiles = true } = {}) {
+  return http.createServer(async (req, res) => {
+    const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
+    try {
+      if (url.pathname.startsWith("/api/")) await handleApi(req, res, url);
+      else if (serveStaticFiles) await serveStatic(req, res, url);
+      else errorResponse(res, 404, "Not found.");
+    } catch (error) {
+      console.error("Request error:", error);
+      errorResponse(res, error.status || 500, error.status ? error.message : "Internal server error.");
+    }
+  });
+}
+
+function startNodeServer() {
+  const server = createServer();
+  ensureDatabaseReady().then((ready) => {
+    if (!ready) console.error("Database initialization failed:", databaseError?.message || "Unknown error.");
+  }).finally(() => server.listen(PORT, "0.0.0.0", () => console.log(`NexProxy server listening on 0.0.0.0:${PORT}`)));
+  process.on("SIGTERM", () => { server.close(() => process.exit(0)); });
+  return server;
+}
+
+if (require.main === module) startNodeServer();
+
+module.exports = { createServer, ensureDatabaseReady };

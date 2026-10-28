@@ -2,9 +2,14 @@
   "name": "nexproxy-preview",
   "version": "1.0.0",
   "private": true,
-  "description": "NexProxy website with persistent blog posts and comments",
+  "description": "NexProxy website with Supabase API and Cloudflare Workers adapter",
   "scripts": {
     "start": "node server.js",
-    "check": "node --check server.js"
+    "check": "node --check server.js && node --check cloudflare/worker.mjs",
+    "cloudflare:dev": "wrangler dev",
+    "cloudflare:deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "4.154.0"
   }
 }
