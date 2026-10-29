@@ -18,7 +18,7 @@
 
 - [x] সার্ভার `IPINFO_API_TOKEN` environment variable থাকলে IPinfo Lite থেকে দেশ-স্তরের যাচাই করে; token browser-এ পাঠানো বা source/GitHub-এ রাখা হয় না।
 - [x] IPinfo Lite শুধু দেশ/মহাদেশ/ASN তথ্য দেয়; বিদ্যমান শহর, অঞ্চল ও আনুমানিক স্থানাঙ্কের provider অক্ষত থাকে।
-- [ ] `IPINFO_API_TOKEN` এখনো Cloudflare Worker secret হিসেবে যোগ করা হয়নি; তাই IPinfo Lite live country cross-check চালু নয়। Secret যোগ হলে যাচাই করতে হবে; বর্তমানে বিদ্যমান Cloudflare/IPAPI fallback আছে।
+- [x] `IPINFO_API_TOKEN` Cloudflare Worker secret হিসেবে যোগ এবং live country cross-check যাচাই করা হয়েছে; শহর/অঞ্চলের আগের fallback অক্ষত আছে।
 
 ## Cloudflare Workers hosting প্রস্তুতি
 
@@ -28,8 +28,11 @@
 - [x] User Workers Free plan নিশ্চিত করেছেন; account-level `mynexproxy.workers.dev` prefix register করে Worker `nexproxy`-কে `https://nexproxy.mynexproxy.workers.dev`-এ deploy করা হয়েছে। Custom domain, zone DNS record বা paid billing বদলানো হয়নি।
 - [x] Live read-only GET-এ `/`, `/blog/`, `/blog/deployment-smoke-test/` ও `/api/health` 200 দিয়েছে; health-এ `ok=true` এবং Supabase `database=true`।
 
-## Payment and fulfillment backend (অসম্পূর্ণ)
+## Payment and fulfillment backend
 
-- [ ] Supabase `dynamic-action` Edge Function-এর `verify_payment`, proof upload এবং fulfillment logic পুনর্গঠন/প্রয়োগ করতে হবে।
-- [ ] Admin RPC (`create_proxy_assignment`, `repair_proxy_fulfillment` প্রভৃতি) ও সংশ্লিষ্ট policy/schema যাচাই করে প্রয়োগ করতে হবে।
-- [ ] Order → payment → admin fulfillment flow Supabase-এ সম্পূর্ণ করে production data-তে write না করে end-to-end যাচাই করতে হবে।
+- [x] `dynamic-action` Edge Function-এ active payment settings পাঠানো, account-নির্ভর order ownership যাচাইসহ payment proof upload/submission, এবং শুধু admin-এর জন্য ৬০-সেকেন্ডের private proof link যুক্ত হয়েছে।
+- [x] JPG/PNG/WEBP, সর্বোচ্চ ৫ MB payment proof private `payment-proofs` Storage bucket-এ রাখা হয়; customer কেবল নিজের order-এর proof জমা দিতে পারে।
+- [x] `proxy_inventory`, `proxy_assignments`, `proxy_fulfillments`, `payment_settings`, `admin_activity_log` ও `payment_proofs` schema, RLS এবং admin-only RPC তৈরি হয়েছে; admin email `mamunfb13@gmail.com` ছাড়া admin mutations অনুমোদিত নয়।
+- [x] `verify_payment`, `create_proxy_assignment`, `extend_proxy_assignment`, `replace_proxy_assignment`, `repair_proxy_fulfillment`, `get_admin_payment_settings`, `update_payment_settings` ও `get_admin_fulfillment_status` চালু হয়েছে। Assignment-এর আগে payment verify থাকতে হবে এবং proxy inventory-তে AVAILABLE record থাকতে হবে।
+- [x] Live Edge Function-এ public payment-settings action HTTP 200 দিয়েছে; production order/payment/proxy data পরিবর্তন করা হয়নি।
+- [ ] বাস্তব signed-in customer ও admin session দিয়ে সম্পূর্ণ order → payment → verification → inventory assignment → fulfillment flow-র authenticated E2E এখনও পরীক্ষা করা বাকি।

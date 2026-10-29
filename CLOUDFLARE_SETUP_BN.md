@@ -21,4 +21,4 @@ Cloudflare-এর প্রকাশিত Free plan-এ Worker execution-এর
 
 ## গুরুত্বপূর্ণ কার্যকরী সীমা
 
-Cloudflare hosting নিজে থেকে Supabase-এর অনুপস্থিত `dynamic-action` payment verification function বা fulfillment/admin RPC তৈরি করে না। তাই hosting preview সফল হলেও order → payment → admin fulfillment-এর সম্পূর্ণ end-to-end flow আলাদাভাবে Supabase-এ implement ও test করতে হবে। বর্তমান deployment যাচাইয়ের সময় production data-তে write করা যাবে না।
+Cloudflare hosting নিজে থেকে Supabase-এর payment/fulfillment backend তৈরি করে না। এই project-এ private Storage-সহ `dynamic-action`, payment verification এবং admin-only fulfillment RPC এখন Supabase-এ যুক্ত। পূর্ণ authenticated customer → payment → admin verification → proxy assignment flow এখনও বাস্তব signed-in customer/admin session দিয়ে পরীক্ষা করা বাকি; এই পর্যন্ত production order/payment/proxy data-তে test write করা হয়নি।

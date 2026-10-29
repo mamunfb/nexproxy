@@ -4701,13 +4701,6 @@ function createAdminPaymentProofCell(order) {
     const cell =
         document.createElement("td");
 
-    /*
-     * Payment proof records are stored separately.
-     * Until proof lookup/storage integration is added,
-     * display a neutral state rather than exposing
-     * internal storage paths.
-     */
-
     const proofButton =
         document.createElement("button");
 
@@ -4717,13 +4710,39 @@ function createAdminPaymentProofCell(order) {
     proofButton.className =
         "admin-btn admin-btn-secondary admin-btn-small";
 
-    proofButton.textContent =
-        "View";
-
-    proofButton.disabled = true;
-
-    proofButton.title =
-        "Payment proof viewer will be enabled in the next payment-proof stage.";
+    proofButton.textContent = "View";
+    proofButton.addEventListener("click", async () => {
+        const proofWindow = window.open("about:blank", "_blank");
+        proofButton.disabled = true;
+        try {
+            const supabase = initializeAdminSupabase();
+            const { data: sessionData } = await supabase.auth.getSession();
+            const accessToken = sessionData?.session?.access_token;
+            if (!accessToken) throw new Error("Sign in again to view payment proof.");
+            const response = await fetch(
+                `${window.NEXPROXY_SUPABASE_URL}/functions/v1/dynamic-action`,
+                {
+                    method: "POST",
+                    headers: {
+                        apikey: window.NEXPROXY_SUPABASE_PUBLISHABLE_KEY,
+                        Authorization: `Bearer ${accessToken}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ action: "get_payment_proof", orderId: order.order_id })
+                }
+            );
+            const result = await response.json();
+            if (!response.ok || !result.success) throw new Error(result.error || "No payment proof found.");
+            if (proofWindow) proofWindow.location.replace(result.url);
+            else window.location.href = result.url;
+        } catch (error) {
+            proofWindow?.close();
+            showAdminToast(error?.message || "Unable to open payment proof.", "error");
+        } finally {
+            proofButton.disabled = false;
+        }
+    });
+    proofButton.title = "Open the latest private payment proof in a short-lived link.";
 
     cell.appendChild(proofButton);
 

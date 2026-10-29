@@ -45,6 +45,23 @@ function getStoredOrder() {
     }
 }
 
+async function getPaymentAuthorizationHeaders(publishableKey) {
+    const headers = { apikey: publishableKey };
+    let client = window.NEXPROXY_SUPABASE_CLIENT;
+    if (!client && window.supabase?.createClient && window.NEXPROXY_SUPABASE_URL) {
+        client = window.supabase.createClient(
+            window.NEXPROXY_SUPABASE_URL,
+            publishableKey,
+            { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
+        );
+        window.NEXPROXY_SUPABASE_CLIENT = client;
+    }
+    const { data } = client ? await client.auth.getSession() : { data: null };
+    const accessToken = data?.session?.access_token;
+    if (!accessToken) throw new Error("Please sign in again before submitting payment.");
+    headers.Authorization = `Bearer ${accessToken}`;
+    return headers;
+}
 
 /**
  * Load the currently active payment settings
@@ -160,13 +177,7 @@ async function uploadPaymentProof(
         `${window.NEXPROXY_SUPABASE_URL}/functions/v1/dynamic-action`,
         {
             method: "POST",
-            headers: {
-                "apikey":
-                    supabasePublishableKey,
-
-                "Authorization":
-                    `Bearer ${supabasePublishableKey}`
-            },
+            headers: await getPaymentAuthorizationHeaders(supabasePublishableKey),
             body: formData
         }
     );
@@ -322,14 +333,8 @@ function initPaymentForm(orderData) {
                         method: "POST",
 
                         headers: {
-                            "apikey":
-                                supabasePublishableKey,
-
-                            "Authorization":
-                                `Bearer ${supabasePublishableKey}`,
-
-                            "Content-Type":
-                                "application/json"
+                            ...await getPaymentAuthorizationHeaders(supabasePublishableKey),
+                            "Content-Type": "application/json"
                         },
 
                         body: JSON.stringify({
