@@ -4245,6 +4245,22 @@ async function handleAdminAssignProxySubmit(event) {
             );
         }
 
+        try {
+            const { data: notification, error: notificationError } =
+                await supabase.functions.invoke("dynamic-action", {
+                    body: {
+                        action: "send_order_notification",
+                        event: "proxy_assigned",
+                        orderId
+                    }
+                });
+            if (notificationError || notification?.emailSent === false) {
+                console.warn("Proxy assignment email was not sent.");
+            }
+        } catch (_notificationError) {
+            console.warn("Proxy assignment email request was unavailable.");
+        }
+
         closeAdminAssignProxyModal();
 
         showAdminToast(
@@ -4858,6 +4874,22 @@ async function handleAdminVerifyPayment(
             throw new Error(
                 "Payment verification returned no data."
             );
+        }
+
+        try {
+            const { data: notification, error: notificationError } =
+                await supabase.functions.invoke("dynamic-action", {
+                    body: {
+                        action: "send_order_notification",
+                        event: "payment_verified",
+                        orderId
+                    }
+                });
+            if (notificationError || notification?.emailSent === false) {
+                console.warn("Payment verification email was not sent.");
+            }
+        } catch (_notificationError) {
+            console.warn("Payment verification email request was unavailable.");
         }
 
         showAdminToast(

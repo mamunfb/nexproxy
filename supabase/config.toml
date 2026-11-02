@@ -1,0 +1,7 @@
+project_id = "mviohrcnkxodltwjqvyy"
+
+[functions.dynamic-action]
+verify_jwt = false
+
+[functions.send-auth-email]
+verify_jwt = false

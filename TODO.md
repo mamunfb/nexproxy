@@ -36,3 +36,16 @@
 - [x] `verify_payment`, `create_proxy_assignment`, `extend_proxy_assignment`, `replace_proxy_assignment`, `repair_proxy_fulfillment`, `get_admin_payment_settings`, `update_payment_settings` ও `get_admin_fulfillment_status` চালু হয়েছে। Assignment-এর আগে payment verify থাকতে হবে এবং proxy inventory-তে AVAILABLE record থাকতে হবে।
 - [x] Live Edge Function-এ public payment-settings action HTTP 200 দিয়েছে; production order/payment/proxy data পরিবর্তন করা হয়নি।
 - [ ] বাস্তব signed-in customer ও admin session দিয়ে সম্পূর্ণ order → payment → verification → inventory assignment → fulfillment flow-র authenticated E2E এখনও পরীক্ষা করা বাকি।
+
+
+## Brevo transactional email
+
+- [x] Transactional-only Brevo API key, verified sender `mamunfb13@gmail.com`, এবং `SEND_EMAIL_HOOK_SECRET` Supabase Edge Function Secrets-এ সংরক্ষিত; কোনো secret source code বা Git-এ নেই।
+- [x] Brevo API-key IP blocking বন্ধ; SMTP IP blocking চালু রাখা হয়েছে। NexProxy শুধু server-side Brevo REST API ব্যবহার করে।
+- [x] Supabase Send Email Auth Hook সক্রিয় এবং `send-auth-email` function deploy করা হয়েছে; signup confirmation-এ welcome copy, password recovery, sign-in/OTP ও অন্যান্য Auth notice hook দিয়ে পাঠানো হয়।
+- [x] Supabase dashboard নিশ্চিত করেছে: Send Email Hook সক্রিয় থাকলে built-in Auth templates ব্যবহার হয় না; তাই ওই templates আলাদা করে সম্পাদনা প্রয়োজন হয়নি।
+- [x] অর্ডার receipt, payment submitted, payment verified এবং proxy assigned-এর fixed Bengali/English notification যুক্ত; recipient আসে confirmed Supabase account থেকে, caller থেকে নয়।
+- [x] `transactional_email_events` private deduplication table যোগ; customer/admin authorization server-এ যাচাই হয়, email-এ proxy credential বা payment proof অন্তর্ভুক্ত হয় না।
+- [x] Updated `dynamic-action` ও `send-auth-email` deploy; unauthenticated order-email request 401 দিয়েছে, এবং function endpoints active আছে।
+- [ ] বাস্তব inbox-এ email delivery এখনও পরীক্ষা করা হয়নি; এখন পর্যন্ত কোনো test mail পাঠানো হয়নি।
+- [ ] Read-only যাচাইয়ে production-এ বর্তমানে কোনো order বা AVAILABLE proxy inventory record নেই। তাই full order → payment → verification → assignment flow পরীক্ষা করতে temporary production test data লাগবে; test data তৈরি/মুছতে user confirmation না পাওয়া পর্যন্ত করা হবে না।

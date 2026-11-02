@@ -234,6 +234,22 @@ function initReviewActions() {
                 throw new Error("Unable to create your order.");
             }
 
+            try {
+                const { data: notification, error: notificationError } =
+                    await supabase.functions.invoke("dynamic-action", {
+                        body: {
+                            action: "send_order_notification",
+                            event: "order_received",
+                            orderId: updatedOrder.orderId
+                        }
+                    });
+                if (notificationError || notification?.emailSent === false) {
+                    console.warn("Order receipt email was not sent.");
+                }
+            } catch (_notificationError) {
+                console.warn("Order receipt email request was unavailable.");
+            }
+
             sessionStorage.setItem(
                 "nexproxyOrder",
                 JSON.stringify(updatedOrder)
