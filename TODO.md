@@ -33,10 +33,9 @@
 - [x] `dynamic-action` Edge Function-এ active payment settings পাঠানো, account-নির্ভর order ownership যাচাইসহ payment proof upload/submission, এবং শুধু admin-এর জন্য ৬০-সেকেন্ডের private proof link যুক্ত হয়েছে।
 - [x] JPG/PNG/WEBP, সর্বোচ্চ ৫ MB payment proof private `payment-proofs` Storage bucket-এ রাখা হয়; customer কেবল নিজের order-এর proof জমা দিতে পারে।
 - [x] `proxy_inventory`, `proxy_assignments`, `proxy_fulfillments`, `payment_settings`, `admin_activity_log` ও `payment_proofs` schema, RLS এবং admin-only RPC তৈরি হয়েছে; admin email `mamunfb13@gmail.com` ছাড়া admin mutations অনুমোদিত নয়।
-- [x] `verify_payment`, `create_proxy_assignment`, `extend_proxy_assignment`, `replace_proxy_assignment`, `repair_proxy_fulfillment`, `get_admin_payment_settings`, `update_payment_settings` ও `get_admin_fulfillment_status` চালু হয়েছে। Assignment-এর আগে payment verify থাকতে হবে এবং proxy inventory-তে AVAILABLE record থাকতে হবে।
+- [x] `verify_payment`, `create_proxy_assignment`, `extend_proxy_assignment`, `get_admin_fulfillment_status`, `get_admin_payment_settings`, `repair_proxy_fulfillment`, `replace_proxy_assignment` ও `update_payment_settings` চালু হয়েছে। Assignment-এর আগে payment verify থাকতে হবে এবং proxy inventory-তে AVAILABLE record থাকতে হবে।
 - [x] Live Edge Function-এ public payment-settings action HTTP 200 দিয়েছে; production order/payment/proxy data পরিবর্তন করা হয়নি।
 - [ ] বাস্তব signed-in customer ও admin session দিয়ে সম্পূর্ণ order → payment → verification → inventory assignment → fulfillment flow-র authenticated E2E এখনও পরীক্ষা করা বাকি।
-
 
 ## Brevo transactional email
 
@@ -47,5 +46,10 @@
 - [x] অর্ডার receipt, payment submitted, payment verified এবং proxy assigned-এর fixed Bengali/English notification যুক্ত; recipient আসে confirmed Supabase account থেকে, caller থেকে নয়।
 - [x] `transactional_email_events` private deduplication table যোগ; customer/admin authorization server-এ যাচাই হয়, email-এ proxy credential বা payment proof অন্তর্ভুক্ত হয় না।
 - [x] Updated `dynamic-action` ও `send-auth-email` deploy; unauthenticated order-email request 401 দিয়েছে, এবং function endpoints active আছে।
-- [ ] বাস্তব inbox-এ email delivery এখনও পরীক্ষা করা হয়নি; এখন পর্যন্ত কোনো test mail পাঠানো হয়নি।
-- [ ] Read-only যাচাইয়ে production-এ বর্তমানে কোনো order বা AVAILABLE proxy inventory record নেই। তাই full order → payment → verification → assignment flow পরীক্ষা করতে temporary production test data লাগবে; test data তৈরি/মুছতে user confirmation না পাওয়া পর্যন্ত করা হবে না।
+- [x] Test inbox-এ Brevo delivery যাচাই হয়েছে। Supabase confirmation link-এর জন্য signup action `type=email`-এ map করার fix deploy করা হয়েছে; temporary test account-এর confirmation ও sign-in timestamp 2026-11-02 00:49:10 UTC-এ রেকর্ড হয়েছে।
+- [ ] Password recovery, customer order/payment notices ও admin verification/assignment notices-এর বাস্তব inbox delivery এখনও আলাদাভাবে পরীক্ষা করা হয়নি।
+
+## End-to-end test status
+
+- [ ] Production-এ বর্তমানে কোনো order বা AVAILABLE proxy inventory record ছিল না (সর্বশেষ read-only যাচাই); এখনও কোনো test order, payment proof বা proxy inventory row তৈরি করা হয়নি।
+- [ ] Full customer order → fake/test payment → admin verification → dummy inventory assignment → fulfillment flow পরীক্ষা ও শেষে শুধু test records cleanup বাকি। কোনো বাস্তব টাকা বা proxy credential ব্যবহার করা যাবে না।

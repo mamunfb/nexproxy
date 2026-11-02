@@ -12,7 +12,7 @@ type Mail = { to: string; action: string; hash?: string; token?: string; redirec
 const copy: Record<string, { subject: string; title: string; en: string; bn: string }> = {
   signup: { subject: "Welcome to Nexproxy — confirm your email", title: "Welcome to Nexproxy / Nexproxy-তে স্বাগতম", en: "Welcome! Confirm this address to finish creating your Nexproxy account.", bn: "Nexproxy-তে স্বাগতম! অ্যাকাউন্ট তৈরি সম্পন্ন করতে এই ইমেইল ঠিকানাটি নিশ্চিত করুন।" },
   recovery: { subject: "Reset your Nexproxy password", title: "Reset your password / পাসওয়ার্ড রিসেট করুন", en: "We received a request to reset your password. Use the secure link or one-time code below.", bn: "আপনার পাসওয়ার্ড রিসেটের অনুরোধ পাওয়া গেছে। নিচের নিরাপদ লিংক বা একবার ব্যবহারযোগ্য কোড ব্যবহার করুন।" },
-  magiclink: { subject: "Your Nexproxy sign-in link", title: "Sign in to Nexproxy / Nexproxy-তে সাইন ইন করুন", en: "Use the secure link or one-time code below to sign in.", bn: "সাইন ইন করতে নিচের নিরাপদ লিংক বা একবার ব্যবহারযোগ্য কোড ব্যবহার করুন।" },
+  magiclink: { subject: "Your Nexproxy sign-in link", title: "Sign in to Nexproxy / Nexproxy-তে সাইন ইন করুন", en: "Use the secure link or one-time code below to sign in.", bn: "সাইন ইন করতে নিচের নিরাপদ লিংক বা কোড ব্যবহার করুন।" },
   invite: { subject: "You are invited to Nexproxy", title: "Nexproxy invitation / Nexproxy আমন্ত্রণ", en: "Use the link below to accept your invitation.", bn: "আমন্ত্রণ গ্রহণ করতে নিচের লিংকটি ব্যবহার করুন।" },
   email_change: { subject: "Confirm your Nexproxy email change", title: "Confirm email change / ইমেইল পরিবর্তন নিশ্চিত করুন", en: "Use the secure link or code below to confirm this email change.", bn: "ইমেইল পরিবর্তন নিশ্চিত করতে নিচের নিরাপদ লিংক বা কোড ব্যবহার করুন।" },
   reauthentication: { subject: "Your Nexproxy verification code", title: "Verify your identity / পরিচয় যাচাই করুন", en: "Use this one-time code to verify your identity.", bn: "আপনার পরিচয় যাচাই করতে এই একবার ব্যবহারযোগ্য কোডটি ব্যবহার করুন।" },
@@ -20,7 +20,7 @@ const copy: Record<string, { subject: string; title: string; en: string; bn: str
   email_changed_notification: { subject: "Your Nexproxy email was changed", title: "Email changed / ইমেইল পরিবর্তিত হয়েছে", en: "Your account email was changed. If you did not do this, contact support immediately.", bn: "আপনার অ্যাকাউন্টের ইমেইল পরিবর্তিত হয়েছে। আপনি এটি না করে থাকলে দ্রুত সহায়তায় যোগাযোগ করুন।" },
   phone_changed_notification: { subject: "Your Nexproxy phone number was changed", title: "Phone number changed / ফোন নম্বর পরিবর্তিত হয়েছে", en: "Your account phone number was changed. If you did not do this, contact support.", bn: "আপনার অ্যাকাউন্টের ফোন নম্বর পরিবর্তিত হয়েছে। আপনি এটি না করে থাকলে সহায়তায় যোগাযোগ করুন।" },
   identity_linked_notification: { subject: "A sign-in method was added to Nexproxy", title: "Sign-in method added / সাইন-ইন পদ্ধতি যোগ হয়েছে", en: "A new sign-in method was linked to your account. If you did not do this, contact support.", bn: "আপনার অ্যাকাউন্টে নতুন সাইন-ইন পদ্ধতি যুক্ত হয়েছে। আপনি এটি না করে থাকলে সহায়তায় যোগাযোগ করুন।" },
-  identity_unlinked_notification: { subject: "A sign-in method was removed from Nexproxy", title: "Sign-in method removed / সাইন-ইন পদ্ধতি সরানো হয়েছে", en: "A sign-in method was removed from your account. If you did not do this, contact support.", bn: "আপনার অ্যাকাউন্ট থেকে একটি সাইন-ইন পদ্ধতি সরানো হয়েছে। আপনি এটি না করে থাকলে সহায়তায় যোগাযোগ করুন।" },
+  identity_unlinked_notification: { subject: "A sign-in method was removed from Nexproxy", title: "Sign-in method removed / সাইন-ইন পদ্ধতি সরানো হয়েছে", en: "A sign-in method was removed from your account. If you did not do this, contact support.", bn: "আপনার অ্যাকাউন্ট থেকে সাইন-ইন পদ্ধতি সরানো হয়েছে। আপনি এটি না করে থাকলে সহায়তায় যোগাযোগ করুন।" },
   mfa_factor_enrolled_notification: { subject: "Two-factor authentication was enabled", title: "Two-factor authentication enabled / দুই-ধাপ যাচাই চালু হয়েছে", en: "Two-factor authentication was enabled on your account. If you did not do this, contact support.", bn: "আপনার অ্যাকাউন্টে দুই-ধাপ যাচাই চালু হয়েছে। আপনি এটি না করে থাকলে সহায়তায় যোগাযোগ করুন।" },
   mfa_factor_unenrolled_notification: { subject: "Two-factor authentication was disabled", title: "Two-factor authentication disabled / দুই-ধাপ যাচাই বন্ধ হয়েছে", en: "Two-factor authentication was disabled on your account. If you did not do this, contact support.", bn: "আপনার অ্যাকাউন্টে দুই-ধাপ যাচাই বন্ধ হয়েছে। আপনি এটি না করে থাকলে সহায়তায় যোগাযোগ করুন।" },
 };
@@ -32,7 +32,7 @@ const html = (s: string) => s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&l
 function linkFor(base: string, hash: string, action: string, redirect?: string) {
   const u = new URL("/auth/v1/verify", base);
   u.searchParams.set("token", hash);
-  u.searchParams.set("type", action);
+  u.searchParams.set("type", action === "signup" ? "email" : action);
   if (redirect) u.searchParams.set("redirect_to", redirect);
   return u.toString();
 }
