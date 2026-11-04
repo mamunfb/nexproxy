@@ -39,17 +39,24 @@
 
 ## Brevo transactional email
 
-- [x] Transactional-only Brevo API key, verified sender `mamunfb13@gmail.com`, এবং `SEND_EMAIL_HOOK_SECRET` Supabase Edge Function Secrets-এ সংরক্ষিত; কোনো secret source code বা Git-এ নেই।
+- [x] Transactional-only Brevo API key, verified sender `mamunfb13@gmail.com`, এবং `SEND_EMAIL_HOOK_SECRET` Supabase Edge Function Secrets-এ সংরক্ষিত; 2026-11-04 23:23 UTC-এ Auth Hook ও Edge Function secret নতুন করে rotate করে fingerprint মিলিয়ে যাচাই করা হয়েছে। কোনো value source code বা Git-এ নেই।
 - [x] Brevo API-key IP blocking বন্ধ; SMTP IP blocking চালু রাখা হয়েছে। NexProxy শুধু server-side Brevo REST API ব্যবহার করে।
-- [x] Supabase Send Email Auth Hook সক্রিয় এবং `send-auth-email` function deploy করা হয়েছে; signup confirmation-এ welcome copy, password recovery, sign-in/OTP ও অন্যান্য Auth notice hook দিয়ে পাঠানো হয়।
+- [x] Supabase Send Email Auth Hook সক্রিয় এবং `send-auth-email` function deploy করা হয়েছে; নতুন signing key দুই জায়গায় সমান। Signup confirmation-এ welcome copy, password recovery, sign-in/OTP ও অন্যান্য Auth notice hook দিয়ে পাঠানো হয়।
 - [x] Supabase dashboard নিশ্চিত করেছে: Send Email Hook সক্রিয় থাকলে built-in Auth templates ব্যবহার হয় না; তাই ওই templates আলাদা করে সম্পাদনা প্রয়োজন হয়নি।
 - [x] অর্ডার receipt, payment submitted, payment verified এবং proxy assigned-এর fixed Bengali/English notification যুক্ত; recipient আসে confirmed Supabase account থেকে, caller থেকে নয়।
 - [x] `transactional_email_events` private deduplication table যোগ; customer/admin authorization server-এ যাচাই হয়, email-এ proxy credential বা payment proof অন্তর্ভুক্ত হয় না।
 - [x] Updated `dynamic-action` ও `send-auth-email` deploy; unauthenticated order-email request 401 দিয়েছে, এবং function endpoints active আছে।
 - [x] Test inbox-এ Brevo delivery যাচাই হয়েছে। Supabase confirmation link-এর জন্য signup action `type=email`-এ map করার fix deploy করা হয়েছে; temporary test account-এর confirmation ও sign-in timestamp 2026-11-02 00:49:10 UTC-এ রেকর্ড হয়েছে।
-- [ ] Password recovery, customer order/payment notices ও admin verification/assignment notices-এর বাস্তব inbox delivery এখনও আলাদাভাবে পরীক্ষা করা হয়নি।
+- [ ] 2026-11-04 23:27 UTC-এ admin inbox-এ password-recovery request HTTP 200 দিয়েছে; প্রকৃত inbox delivery এখনও দেখা হয়নি। Customer order/payment notices ও admin verification/assignment notices-এর inbox delivery-ও আলাদাভাবে পরীক্ষা বাকি।
 
 ## End-to-end test status
 
 - [ ] Production-এ বর্তমানে কোনো order বা AVAILABLE proxy inventory record ছিল না (সর্বশেষ read-only যাচাই); এখনও কোনো test order, payment proof বা proxy inventory row তৈরি করা হয়নি।
 - [ ] Full customer order → fake/test payment → admin verification → dummy inventory assignment → fulfillment flow পরীক্ষা ও শেষে শুধু test records cleanup বাকি। কোনো বাস্তব টাকা বা proxy credential ব্যবহার করা যাবে না।
+
+## WhatsApp phone OTP
+
+- [x] Signed Supabase Send SMS Hook function `send-whatsapp-otp` deploy হয়েছে; Supabase webhook signature যাচাই করে এবং approved Twilio WhatsApp Content Template-এ Supabase-generated OTP পাঠানোর জন্য প্রস্তুত।
+- [x] Account profile-এ phone change/OTP verify UI ও Supabase `phone_change` flow code-এ যোগ হয়েছে; UI feature gate default-off (`NEXPROXY_WHATSAPP_OTP_ENABLED=false`) এবং secrets source/Git-এ নেই।
+- [ ] Supabase Phone provider বর্তমানে DISABLED। Twilio WhatsApp Sender/Content Template approval, Twilio credentials, SMS Hook signing secret ও Edge Function secrets যোগ করা বাকি। Setup guide: `WHATSAPP_OTP_SETUP_BN.md`।
+- [ ] Twilio/Supabase configuration সম্পন্ন হলে feature gate on করে test phone-এ OTP send → verify → `phone_confirmed_at` E2E এবং Cloudflare Workers Free frontend deployment পরীক্ষা বাকি।

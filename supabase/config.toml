@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.send-auth-email]
 verify_jwt = false
+
+[functions.send-whatsapp-otp]
+verify_jwt = false

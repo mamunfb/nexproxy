@@ -4,6 +4,7 @@ const accountState = {
     client: null,
     user: null,
     redirectedAfterAuth: false,
+    pendingPhone: "",
     initialAuthTab: new URLSearchParams(window.location.search).get("view") === "signup" ? "signup" : "signin",
     recoveryFlow: new URLSearchParams(window.location.search).get("mode") === "recovery"
 };
@@ -28,7 +29,16 @@ const accountElements = {
     googleSignInButton: document.getElementById("google-signin-button"),
     googleSignUpButton: document.getElementById("google-signup-button"),
     githubSignInButton: document.getElementById("github-signin-button"),
-    githubSignUpButton: document.getElementById("github-signup-button")
+    githubSignUpButton: document.getElementById("github-signup-button"),
+    phoneStatus: document.getElementById("account-phone-status"),
+    phoneRequestForm: document.getElementById("account-phone-request-form"),
+    phoneConfirmForm: document.getElementById("account-phone-confirm-form"),
+    phoneNumber: document.getElementById("account-phone-number"),
+    phoneCode: document.getElementById("account-phone-code"),
+    phoneSendButton: document.getElementById("account-phone-send-code"),
+    phoneVerifyButton: document.getElementById("account-phone-verify-code"),
+    phoneResendButton: document.getElementById("account-phone-resend-code"),
+    phoneMessage: document.getElementById("account-phone-message")
 };
 
 function setVisible(element, isVisible) {
@@ -139,6 +149,10 @@ function formatMemberSince(timestamp) {
 function renderProfile(user) {
     accountState.user = user || null;
     if (!user) {
+        accountState.pendingPhone = "";
+        setVisible(accountElements.phoneConfirmForm, false);
+        if (accountElements.phoneCode) accountElements.phoneCode.value = "";
+        clearMessage(accountElements.phoneMessage);
         showAuthentication();
         return;
     }
@@ -148,7 +162,36 @@ function renderProfile(user) {
     document.getElementById("account-created-at").textContent = formatMemberSince(user.created_at);
     document.getElementById("profile-name").value = metadata.full_name || "";
     document.getElementById("profile-phone").value = metadata.phone || "";
+    renderPhoneVerification(user);
     setAccountView("dashboard");
+}
+
+function renderPhoneVerification(user) {
+    const enabled = window.NEXPROXY_WHATSAPP_OTP_ENABLED === true;
+    const phone = user?.phone || "";
+    const verified = Boolean(user?.phone_confirmed_at);
+    if (accountElements.phoneStatus) {
+        if (!enabled) {
+            accountElements.phoneStatus.textContent = "WhatsApp phone verification is not active yet.";
+        } else if (verified) {
+            accountElements.phoneStatus.textContent = `Verified WhatsApp number: ${phone}`;
+        } else if (phone) {
+            accountElements.phoneStatus.textContent = `A WhatsApp number is on this account but is not verified: ${phone}`;
+        } else {
+            accountElements.phoneStatus.textContent = "No WhatsApp number is verified on this account.";
+        }
+    }
+    if (accountElements.phoneSendButton) accountElements.phoneSendButton.disabled = !enabled;
+    if (accountElements.phoneResendButton) accountElements.phoneResendButton.disabled = !enabled;
+    if (accountElements.phoneNumber && !accountState.pendingPhone) {
+        accountElements.phoneNumber.value = phone;
+    }
+    if (verified && accountState.pendingPhone === phone) {
+        accountState.pendingPhone = "";
+        setVisible(accountElements.phoneConfirmForm, false);
+    } else if (!accountState.pendingPhone) {
+        setVisible(accountElements.phoneConfirmForm, false);
+    }
 }
 
 function getAccountRedirectUrl() {
@@ -393,6 +436,91 @@ function bindAccountForms() {
             setMessage(accountElements.profileMessage, error.message || "Unable to save your profile. Please try again.", "error");
         } finally {
             setSubmitState(button, false, "Saving…", "Save profile");
+        }
+    });
+
+    accountElements.phoneRequestForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (window.NEXPROXY_WHATSAPP_OTP_ENABLED !== true) {
+            setMessage(accountElements.phoneMessage, "WhatsApp phone verification is not active yet.", "error");
+            return;
+        }
+        if (!event.currentTarget.reportValidity()) return;
+
+        const phone = accountElements.phoneNumber.value.trim();
+        if (!/^\+[1-9]\d{7,14}$/.test(phone)) {
+            setMessage(accountElements.phoneMessage, "Enter a valid international phone number, for example +8801XXXXXXXXX.", "error");
+            return;
+        }
+        if (accountState.user?.phone === phone && accountState.user?.phone_confirmed_at) {
+            setMessage(accountElements.phoneMessage, "This WhatsApp number is already verified.", "success");
+            return;
+        }
+
+        clearMessage(accountElements.phoneMessage);
+        setSubmitState(accountElements.phoneSendButton, true, "Sending code…", "Send WhatsApp code");
+        try {
+            const { error } = await accountState.client.auth.updateUser({ phone });
+            if (error) throw error;
+            accountState.pendingPhone = phone;
+            accountElements.phoneCode.value = "";
+            setVisible(accountElements.phoneConfirmForm, true);
+            setMessage(accountElements.phoneMessage, "A verification code was requested. Check WhatsApp and enter the code here.", "success");
+        } catch (error) {
+            setMessage(accountElements.phoneMessage, error.message || "Unable to send the WhatsApp code. Please try again later.", "error");
+        } finally {
+            setSubmitState(accountElements.phoneSendButton, false, "Sending code…", "Send WhatsApp code");
+        }
+    });
+
+    accountElements.phoneConfirmForm?.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!event.currentTarget.reportValidity()) return;
+        if (!accountState.pendingPhone) {
+            setMessage(accountElements.phoneMessage, "Request a new verification code first.", "error");
+            setVisible(accountElements.phoneConfirmForm, false);
+            return;
+        }
+
+        const token = accountElements.phoneCode.value.trim();
+        if (!/^\d{4,10}$/.test(token)) {
+            setMessage(accountElements.phoneMessage, "Enter the verification code using digits only.", "error");
+            return;
+        }
+        setSubmitState(accountElements.phoneVerifyButton, true, "Verifying…", "Verify WhatsApp number");
+        try {
+            const { data, error } = await accountState.client.auth.verifyOtp({
+                phone: accountState.pendingPhone,
+                token,
+                type: "phone_change"
+            });
+            if (error) throw error;
+            accountState.user = data.user || accountState.user;
+            accountState.pendingPhone = "";
+            accountElements.phoneCode.value = "";
+            setVisible(accountElements.phoneConfirmForm, false);
+            renderPhoneVerification(accountState.user);
+            setMessage(accountElements.phoneMessage, "Your WhatsApp number is verified.", "success");
+        } catch (error) {
+            setMessage(accountElements.phoneMessage, error.message || "That code could not be verified. Request a new code and try again.", "error");
+        } finally {
+            setSubmitState(accountElements.phoneVerifyButton, false, "Verifying…", "Verify WhatsApp number");
+        }
+    });
+
+    accountElements.phoneResendButton?.addEventListener("click", async () => {
+        if (window.NEXPROXY_WHATSAPP_OTP_ENABLED !== true || !accountState.pendingPhone) return;
+        clearMessage(accountElements.phoneMessage);
+        setSubmitState(accountElements.phoneResendButton, true, "Sending…", "Send another code");
+        try {
+            const { error } = await accountState.client.auth.updateUser({ phone: accountState.pendingPhone });
+            if (error) throw error;
+            accountElements.phoneCode.value = "";
+            setMessage(accountElements.phoneMessage, "A new verification code was requested. Check WhatsApp.", "success");
+        } catch (error) {
+            setMessage(accountElements.phoneMessage, error.message || "Unable to resend the code. Please wait before trying again.", "error");
+        } finally {
+            setSubmitState(accountElements.phoneResendButton, false, "Sending…", "Send another code");
         }
     });
 
