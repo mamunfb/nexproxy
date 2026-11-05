@@ -62,7 +62,7 @@
 - [x] Telegram setup নির্দেশিকা তৈরি: `TELEGRAM_DELIVERY_SETUP_BN.md`।
 - [ ] Admin-এর Supabase Edge Function Secrets-এ `TELEGRAM_BOT_TOKEN` ও `TELEGRAM_BOT_USERNAME` যোগ করা বাকি। Token চ্যাট, frontend, logs বা Git-এ রাখা যাবে না।
 - [ ] BotFather token যোগ হলে admin Account/Profile থেকে bot webhook ও mandatory order verification activate করতে হবে; আগে নিজের Telegram link এবং test proxy delivery E2E পরীক্ষা করতে হবে।
-- [ ] সংশ্লিষ্ট `dynamic-action` deploy, GitHub `main` sync এবং Cloudflare Workers frontend publish/পরীক্ষা বাকি।
+- [x] Telegram delivery-সহ `dynamic-action` deploy, GitHub `main` sync এবং Cloudflare Workers frontend publish হয়েছে। Live `/account/`, `/order/`, `/order/review/` ও account JS-এ Telegram UI marker HTTP 200 দিয়েছে; unauthenticated contact API HTTP 401 দিয়ে প্রত্যাখ্যান করেছে।
 
 ## WhatsApp phone OTP (inactive alternative)
 
