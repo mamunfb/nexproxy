@@ -4,7 +4,7 @@ const accountState = {
     client: null,
     user: null,
     redirectedAfterAuth: false,
-    pendingPhone: "",
+    telegramPollTimer: null,
     initialAuthTab: new URLSearchParams(window.location.search).get("view") === "signup" ? "signup" : "signin",
     recoveryFlow: new URLSearchParams(window.location.search).get("mode") === "recovery"
 };
@@ -30,15 +30,11 @@ const accountElements = {
     googleSignUpButton: document.getElementById("google-signup-button"),
     githubSignInButton: document.getElementById("github-signin-button"),
     githubSignUpButton: document.getElementById("github-signup-button"),
-    phoneStatus: document.getElementById("account-phone-status"),
-    phoneRequestForm: document.getElementById("account-phone-request-form"),
-    phoneConfirmForm: document.getElementById("account-phone-confirm-form"),
-    phoneNumber: document.getElementById("account-phone-number"),
-    phoneCode: document.getElementById("account-phone-code"),
-    phoneSendButton: document.getElementById("account-phone-send-code"),
-    phoneVerifyButton: document.getElementById("account-phone-verify-code"),
-    phoneResendButton: document.getElementById("account-phone-resend-code"),
-    phoneMessage: document.getElementById("account-phone-message")
+    telegramStatus: document.getElementById("account-telegram-status"),
+    telegramCreateLink: document.getElementById("account-telegram-create-link"),
+    telegramOpenLink: document.getElementById("account-telegram-open-link"),
+    telegramActivate: document.getElementById("account-telegram-activate"),
+    telegramMessage: document.getElementById("account-telegram-message")
 };
 
 function setVisible(element, isVisible) {
@@ -149,10 +145,13 @@ function formatMemberSince(timestamp) {
 function renderProfile(user) {
     accountState.user = user || null;
     if (!user) {
-        accountState.pendingPhone = "";
-        setVisible(accountElements.phoneConfirmForm, false);
-        if (accountElements.phoneCode) accountElements.phoneCode.value = "";
-        clearMessage(accountElements.phoneMessage);
+        if (accountState.telegramPollTimer) clearInterval(accountState.telegramPollTimer);
+        accountState.telegramPollTimer = null;
+        if (accountElements.telegramOpenLink) {
+            accountElements.telegramOpenLink.hidden = true;
+            accountElements.telegramOpenLink.removeAttribute("href");
+        }
+        clearMessage(accountElements.telegramMessage);
         showAuthentication();
         return;
     }
@@ -162,35 +161,94 @@ function renderProfile(user) {
     document.getElementById("account-created-at").textContent = formatMemberSince(user.created_at);
     document.getElementById("profile-name").value = metadata.full_name || "";
     document.getElementById("profile-phone").value = metadata.phone || "";
-    renderPhoneVerification(user);
     setAccountView("dashboard");
+    refreshTelegramContactStatus();
 }
 
-function renderPhoneVerification(user) {
-    const enabled = window.NEXPROXY_WHATSAPP_OTP_ENABLED === true;
-    const phone = user?.phone || "";
-    const verified = Boolean(user?.phone_confirmed_at);
-    if (accountElements.phoneStatus) {
-        if (!enabled) {
-            accountElements.phoneStatus.textContent = "WhatsApp phone verification is not active yet.";
-        } else if (verified) {
-            accountElements.phoneStatus.textContent = `Verified WhatsApp number: ${phone}`;
-        } else if (phone) {
-            accountElements.phoneStatus.textContent = `A WhatsApp number is on this account but is not verified: ${phone}`;
+async function refreshTelegramContactStatus(silent = false) {
+    if (!accountState.user || !accountElements.telegramStatus) return null;
+    try {
+        const { data, error } = await accountState.client.functions.invoke("telegram-contact", {
+            body: { action: "status" }
+        });
+        if (error || !data?.success) throw error || new Error("Status unavailable");
+        const isAdmin = accountState.user.email?.toLowerCase() === "mamunfb13@gmail.com";
+        const isVerified = data.verified === true;
+        const username = data.username ? `@${String(data.username).replace(/^@/, "")}` : "Telegram chat";
+        if (!data.configured) {
+            accountElements.telegramStatus.textContent = "Telegram bot setup is not complete yet.";
+        } else if (isVerified && data.required) {
+            accountElements.telegramStatus.textContent = `Verified as ${username}. New orders require a verified Telegram chat; proxy delivery will be sent here.`;
+        } else if (isVerified) {
+            accountElements.telegramStatus.textContent = `Verified as ${username}. The administrator has not yet made Telegram verification mandatory for new orders.`;
+        } else if (data.required) {
+            accountElements.telegramStatus.textContent = "Telegram verification is required before a new order can be confirmed.";
         } else {
-            accountElements.phoneStatus.textContent = "No WhatsApp number is verified on this account.";
+            accountElements.telegramStatus.textContent = "Connect Telegram here to receive proxy delivery messages. The bot will be enabled for required verification after setup.";
         }
+        if (accountElements.telegramCreateLink) accountElements.telegramCreateLink.disabled = !data.configured;
+        if (accountElements.telegramActivate) {
+            accountElements.telegramActivate.hidden = !isAdmin;
+            accountElements.telegramActivate.disabled = !data.configured || data.required === true;
+            accountElements.telegramActivate.textContent = data.required === true
+                ? "Telegram verification is required for new orders"
+                : "Require Telegram verification for new orders";
+        }
+        if (isVerified && accountState.telegramPollTimer) {
+            clearInterval(accountState.telegramPollTimer);
+            accountState.telegramPollTimer = null;
+        }
+        return data;
+    } catch (_error) {
+        if (!silent) accountElements.telegramStatus.textContent = "Telegram status is temporarily unavailable. Please try again later.";
+        return null;
     }
-    if (accountElements.phoneSendButton) accountElements.phoneSendButton.disabled = !enabled;
-    if (accountElements.phoneResendButton) accountElements.phoneResendButton.disabled = !enabled;
-    if (accountElements.phoneNumber && !accountState.pendingPhone) {
-        accountElements.phoneNumber.value = phone;
+}
+
+async function createTelegramContactLink() {
+    if (!accountState.user) return;
+    setSubmitState(accountElements.telegramCreateLink, true, "Creating link…", "Create secure Telegram link");
+    clearMessage(accountElements.telegramMessage);
+    if (accountElements.telegramOpenLink) accountElements.telegramOpenLink.hidden = true;
+    try {
+        const { data, error } = await accountState.client.functions.invoke("telegram-contact", {
+            body: { action: "create_link" }
+        });
+        if (error || !data?.success || !data?.botUrl) throw error || new Error("Link unavailable");
+        accountElements.telegramOpenLink.href = data.botUrl;
+        accountElements.telegramOpenLink.hidden = false;
+        setMessage(accountElements.telegramMessage, "This secure link expires in 10 minutes. Open it in Telegram and press Start. Do not forward or share the link.", "success");
+        if (accountState.telegramPollTimer) clearInterval(accountState.telegramPollTimer);
+        accountState.telegramPollTimer = setInterval(() => refreshTelegramContactStatus(true), 5000);
+    } catch (_error) {
+        setMessage(accountElements.telegramMessage, "Telegram is not ready yet. Check that the bot has been configured, then try again.", "error");
+    } finally {
+        setSubmitState(accountElements.telegramCreateLink, false, "Creating link…", "Create secure Telegram link");
     }
-    if (verified && accountState.pendingPhone === phone) {
-        accountState.pendingPhone = "";
-        setVisible(accountElements.phoneConfirmForm, false);
-    } else if (!accountState.pendingPhone) {
-        setVisible(accountElements.phoneConfirmForm, false);
+}
+
+async function activateTelegramRequirement() {
+    if (!accountState.user || accountState.user.email?.toLowerCase() !== "mamunfb13@gmail.com") return;
+    const confirmed = window.confirm("Require customers to connect Telegram before confirming new orders? Customers will not be able to place new orders until they link the NexProxy bot.");
+    if (!confirmed) return;
+    let activated = false;
+    setSubmitState(accountElements.telegramActivate, true, "Activating…", "Require Telegram verification for new orders");
+    try {
+        const { data, error } = await accountState.client.functions.invoke("telegram-contact", {
+            body: { action: "activate" }
+        });
+        if (error || !data?.success) throw error || new Error("Activation failed");
+        activated = true;
+        setMessage(accountElements.telegramMessage, "Telegram verification is now required for new orders. The bot webhook was configured.", "success");
+        await refreshTelegramContactStatus(true);
+    } catch (_error) {
+        setMessage(accountElements.telegramMessage, "Telegram could not be activated. Confirm the bot token and username are saved in Supabase Edge Function Secrets.", "error");
+    } finally {
+        setSubmitState(accountElements.telegramActivate, false, "Activating…", "Require Telegram verification for new orders");
+        if (activated) {
+            accountElements.telegramActivate.disabled = true;
+            accountElements.telegramActivate.textContent = "Telegram verification is required for new orders";
+        }
     }
 }
 
@@ -271,6 +329,9 @@ function bindAccountForms() {
     accountElements.githubSignUpButton?.addEventListener("click", () => {
         signInWithProvider(accountElements.githubSignUpButton, "github", "GitHub");
     });
+
+    accountElements.telegramCreateLink?.addEventListener("click", createTelegramContactLink);
+    accountElements.telegramActivate?.addEventListener("click", activateTelegramRequirement);
 
     accountElements.tabs.forEach((tab) => {
         tab.addEventListener("click", () => {
@@ -436,91 +497,6 @@ function bindAccountForms() {
             setMessage(accountElements.profileMessage, error.message || "Unable to save your profile. Please try again.", "error");
         } finally {
             setSubmitState(button, false, "Saving…", "Save profile");
-        }
-    });
-
-    accountElements.phoneRequestForm?.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        if (window.NEXPROXY_WHATSAPP_OTP_ENABLED !== true) {
-            setMessage(accountElements.phoneMessage, "WhatsApp phone verification is not active yet.", "error");
-            return;
-        }
-        if (!event.currentTarget.reportValidity()) return;
-
-        const phone = accountElements.phoneNumber.value.trim();
-        if (!/^\+[1-9]\d{7,14}$/.test(phone)) {
-            setMessage(accountElements.phoneMessage, "Enter a valid international phone number, for example +8801XXXXXXXXX.", "error");
-            return;
-        }
-        if (accountState.user?.phone === phone && accountState.user?.phone_confirmed_at) {
-            setMessage(accountElements.phoneMessage, "This WhatsApp number is already verified.", "success");
-            return;
-        }
-
-        clearMessage(accountElements.phoneMessage);
-        setSubmitState(accountElements.phoneSendButton, true, "Sending code…", "Send WhatsApp code");
-        try {
-            const { error } = await accountState.client.auth.updateUser({ phone });
-            if (error) throw error;
-            accountState.pendingPhone = phone;
-            accountElements.phoneCode.value = "";
-            setVisible(accountElements.phoneConfirmForm, true);
-            setMessage(accountElements.phoneMessage, "A verification code was requested. Check WhatsApp and enter the code here.", "success");
-        } catch (error) {
-            setMessage(accountElements.phoneMessage, error.message || "Unable to send the WhatsApp code. Please try again later.", "error");
-        } finally {
-            setSubmitState(accountElements.phoneSendButton, false, "Sending code…", "Send WhatsApp code");
-        }
-    });
-
-    accountElements.phoneConfirmForm?.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        if (!event.currentTarget.reportValidity()) return;
-        if (!accountState.pendingPhone) {
-            setMessage(accountElements.phoneMessage, "Request a new verification code first.", "error");
-            setVisible(accountElements.phoneConfirmForm, false);
-            return;
-        }
-
-        const token = accountElements.phoneCode.value.trim();
-        if (!/^\d{4,10}$/.test(token)) {
-            setMessage(accountElements.phoneMessage, "Enter the verification code using digits only.", "error");
-            return;
-        }
-        setSubmitState(accountElements.phoneVerifyButton, true, "Verifying…", "Verify WhatsApp number");
-        try {
-            const { data, error } = await accountState.client.auth.verifyOtp({
-                phone: accountState.pendingPhone,
-                token,
-                type: "phone_change"
-            });
-            if (error) throw error;
-            accountState.user = data.user || accountState.user;
-            accountState.pendingPhone = "";
-            accountElements.phoneCode.value = "";
-            setVisible(accountElements.phoneConfirmForm, false);
-            renderPhoneVerification(accountState.user);
-            setMessage(accountElements.phoneMessage, "Your WhatsApp number is verified.", "success");
-        } catch (error) {
-            setMessage(accountElements.phoneMessage, error.message || "That code could not be verified. Request a new code and try again.", "error");
-        } finally {
-            setSubmitState(accountElements.phoneVerifyButton, false, "Verifying…", "Verify WhatsApp number");
-        }
-    });
-
-    accountElements.phoneResendButton?.addEventListener("click", async () => {
-        if (window.NEXPROXY_WHATSAPP_OTP_ENABLED !== true || !accountState.pendingPhone) return;
-        clearMessage(accountElements.phoneMessage);
-        setSubmitState(accountElements.phoneResendButton, true, "Sending…", "Send another code");
-        try {
-            const { error } = await accountState.client.auth.updateUser({ phone: accountState.pendingPhone });
-            if (error) throw error;
-            accountElements.phoneCode.value = "";
-            setMessage(accountElements.phoneMessage, "A new verification code was requested. Check WhatsApp.", "success");
-        } catch (error) {
-            setMessage(accountElements.phoneMessage, error.message || "Unable to resend the code. Please wait before trying again.", "error");
-        } finally {
-            setSubmitState(accountElements.phoneResendButton, false, "Sending…", "Send another code");
         }
     });
 

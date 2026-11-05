@@ -54,9 +54,17 @@
 - [ ] Production-এ বর্তমানে কোনো order বা AVAILABLE proxy inventory record ছিল না (সর্বশেষ read-only যাচাই); এখনও কোনো test order, payment proof বা proxy inventory row তৈরি করা হয়নি।
 - [ ] Full customer order → fake/test payment → admin verification → dummy inventory assignment → fulfillment flow পরীক্ষা ও শেষে শুধু test records cleanup বাকি। কোনো বাস্তব টাকা বা proxy credential ব্যবহার করা যাবে না।
 
-## WhatsApp phone OTP
+## Telegram verified contact ও proxy delivery
 
-- [x] Signed Supabase Send SMS Hook function `send-whatsapp-otp` deploy হয়েছে; Supabase webhook signature যাচাই করে এবং approved Twilio WhatsApp Content Template-এ Supabase-generated OTP পাঠানোর জন্য প্রস্তুত।
-- [x] Account profile-এ phone change/OTP verify UI ও Supabase `phone_change` flow code-এ যোগ হয়েছে; UI feature gate default-off (`NEXPROXY_WHATSAPP_OTP_ENABLED=false`) এবং secrets source/Git-এ নেই।
-- [ ] Supabase Phone provider বর্তমানে DISABLED। Twilio WhatsApp Sender/Content Template approval, Twilio credentials, SMS Hook signing secret ও Edge Function secrets যোগ করা বাকি। Setup guide: `WHATSAPP_OTP_SETUP_BN.md`।
-- [ ] Twilio/Supabase configuration সম্পন্ন হলে feature gate on করে test phone-এ OTP send → verify → `phone_confirmed_at` E2E এবং Cloudflare Workers Free frontend deployment পরীক্ষা বাকি।
+- [x] Telegram account link, status ও admin activation-এর `telegram-contact` Edge Function deploy হয়েছে; Telegram private-chat webhook `telegram-webhook`-ও deploy হয়েছে। দুটো function secret না থাকলে activation/delivery করে না।
+- [x] `customer_contact_settings`, one-use hashed link tokens, verified contact mapping, idempotent delivery events এবং order insert-এর database-side verification trigger Supabase migration-এ প্রয়োগ হয়েছে। `telegram_required` default `false`।
+- [x] Account/Profile-এ 10 মিনিটের secure Telegram link, status polling ও admin activation control যোগ হয়েছে; order review-তে verification status দেখায়। Proxy details শুধু linked private chat-এ পাঠানোর code `dynamic-action`-এ যোগ হয়েছে।
+- [x] Telegram setup নির্দেশিকা তৈরি: `TELEGRAM_DELIVERY_SETUP_BN.md`।
+- [ ] Admin-এর Supabase Edge Function Secrets-এ `TELEGRAM_BOT_TOKEN` ও `TELEGRAM_BOT_USERNAME` যোগ করা বাকি। Token চ্যাট, frontend, logs বা Git-এ রাখা যাবে না।
+- [ ] BotFather token যোগ হলে admin Account/Profile থেকে bot webhook ও mandatory order verification activate করতে হবে; আগে নিজের Telegram link এবং test proxy delivery E2E পরীক্ষা করতে হবে।
+- [ ] সংশ্লিষ্ট `dynamic-action` deploy, GitHub `main` sync এবং Cloudflare Workers frontend publish/পরীক্ষা বাকি।
+
+## WhatsApp phone OTP (inactive alternative)
+
+- [x] পুরনো Twilio Send SMS Hook scaffold deploy হয়েছে, কিন্তু Phone Auth/SMS Hook configuration এখনো disabled; frontend account UI থেকে WhatsApp OTP সরিয়ে দেওয়া হয়েছে।
+- [ ] এই task-এ Telegram-ই মূল verified delivery channel। WhatsApp বিকল্প চালু করতে চাইলে পরে আলাদা করে Twilio sender/template, secrets এবং E2E configure করতে হবে।

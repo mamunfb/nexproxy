@@ -4245,6 +4245,7 @@ async function handleAdminAssignProxySubmit(event) {
             );
         }
 
+        let telegramDeliverySent = false;
         try {
             const { data: notification, error: notificationError } =
                 await supabase.functions.invoke("dynamic-action", {
@@ -4257,6 +4258,7 @@ async function handleAdminAssignProxySubmit(event) {
             if (notificationError || notification?.emailSent === false) {
                 console.warn("Proxy assignment email was not sent.");
             }
+            telegramDeliverySent = notification?.telegramSent === true;
         } catch (_notificationError) {
             console.warn("Proxy assignment email request was unavailable.");
         }
@@ -4264,8 +4266,10 @@ async function handleAdminAssignProxySubmit(event) {
         closeAdminAssignProxyModal();
 
         showAdminToast(
-            "Proxy assigned successfully.",
-            "success"
+            telegramDeliverySent
+                ? "Proxy assigned and sent to the customer’s verified Telegram chat."
+                : "Proxy assigned. Telegram delivery is not configured or could not be confirmed.",
+            telegramDeliverySent ? "success" : "info"
         );
 
         await loadAdminDashboardData();

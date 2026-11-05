@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
     initOrderReview();
 });
 
+let reviewTelegramPollTimer = null;
+
 /**
  * Initialize the order review page.
  */
@@ -29,12 +31,86 @@ function initOrderReview() {
     populateOrderDetails(orderData);
     populateCustomerDetails(orderData);
     initReviewActions();
+    initTelegramOrderContact();
     initOrderLookup();
 
     const editOrder = document.querySelector("#edit-order");
     if (editOrder) {
         editOrder.href = `../?orderId=${encodeURIComponent(orderData.orderId)}`;
     }
+}
+
+async function initTelegramOrderContact() {
+    const panel = document.getElementById("review-telegram-panel");
+    const statusText = document.getElementById("review-telegram-status");
+    const createButton = document.getElementById("review-telegram-create-link");
+    const openLink = document.getElementById("review-telegram-open-link");
+    const confirmButton = document.getElementById("confirm-order");
+    if (!panel || !statusText || !confirmButton) return;
+
+    confirmButton.disabled = true;
+    async function updateStatus(silent = false) {
+        try {
+            const supabase = getReviewSupabaseClient();
+            const { data, error } = await supabase.functions.invoke("telegram-contact", {
+                body: { action: "status" }
+            });
+            if (error || !data?.success) throw error || new Error("Status unavailable");
+            if (data.required !== true) {
+                panel.hidden = true;
+                confirmButton.disabled = false;
+                return data;
+            }
+            panel.hidden = false;
+            if (data.verified === true) {
+                const username = data.username ? ` (@${String(data.username).replace(/^@/, "")})` : "";
+                statusText.textContent = `Telegram is connected${username}. Your proxy details will be sent to this chat.`;
+                confirmButton.disabled = false;
+                if (reviewTelegramPollTimer) {
+                    clearInterval(reviewTelegramPollTimer);
+                    reviewTelegramPollTimer = null;
+                }
+            } else {
+                statusText.textContent = data.configured
+                    ? "Connect the NexProxy bot and press Start. Order confirmation stays locked until the Telegram chat is verified."
+                    : "Telegram is required, but the bot is not configured yet. Please contact NexProxy support.";
+                confirmButton.disabled = true;
+            }
+            if (createButton) createButton.disabled = data.configured !== true || data.verified === true;
+            if (openLink && data.verified === true) openLink.hidden = true;
+            return data;
+        } catch (_error) {
+            if (!silent) statusText.textContent = "Sign in and refresh this page to check your Telegram delivery status.";
+            confirmButton.disabled = false;
+            return null;
+        }
+    }
+
+    createButton?.addEventListener("click", async () => {
+        createButton.disabled = true;
+        createButton.textContent = "Creating link…";
+        try {
+            const supabase = getReviewSupabaseClient();
+            const { data, error } = await supabase.functions.invoke("telegram-contact", {
+                body: { action: "create_link" }
+            });
+            if (error || !data?.success || !data?.botUrl) throw error || new Error("Link unavailable");
+            if (openLink) {
+                openLink.href = data.botUrl;
+                openLink.hidden = false;
+            }
+            statusText.textContent = "This one-time link expires in 10 minutes. Open it in Telegram and press Start; then return here.";
+            if (reviewTelegramPollTimer) clearInterval(reviewTelegramPollTimer);
+            reviewTelegramPollTimer = setInterval(() => updateStatus(true), 5000);
+        } catch (_error) {
+            statusText.textContent = "Could not create the Telegram link. Check that you are signed in and try again.";
+        } finally {
+            createButton.textContent = "Create secure Telegram link";
+            await updateStatus(true);
+        }
+    });
+
+    await updateStatus();
 }
 
 /**

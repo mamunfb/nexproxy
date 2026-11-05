@@ -98,6 +98,11 @@
     background: var(--color-accent-soft);
 }
 
+.review-notice[hidden],
+.review-notice [hidden] {
+    display: none !important;
+}
+
 .review-notice strong {
     display: block;
     margin-bottom: var(--space-2);

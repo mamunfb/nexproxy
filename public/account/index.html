@@ -180,27 +180,15 @@
                             <button class="btn btn-primary account-submit" type="submit">Save profile</button>
                             <p class="account-message" id="account-profile-message" role="status" aria-live="polite" hidden></p>
                         </form>
-                        <div class="account-phone-verification" aria-labelledby="phone-verification-title">
-                            <h3 id="phone-verification-title">WhatsApp phone verification</h3>
-                            <p class="account-card-description" id="account-phone-status" role="status" aria-live="polite">WhatsApp phone verification is being configured.</p>
-                            <form class="account-form" id="account-phone-request-form" novalidate>
-                                <div class="account-field">
-                                    <label for="account-phone-number">WhatsApp number</label>
-                                    <input id="account-phone-number" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="16" placeholder="+8801XXXXXXXXX" required>
-                                    <small>Enter the number in international format, including the + country code.</small>
-                                </div>
-                                <button class="btn btn-secondary account-submit" id="account-phone-send-code" type="submit" disabled>Send WhatsApp code</button>
-                            </form>
-                            <form class="account-form" id="account-phone-confirm-form" novalidate hidden>
-                                <div class="account-field">
-                                    <label for="account-phone-code">Verification code</label>
-                                    <input id="account-phone-code" name="token" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{4,10}" maxlength="10" required>
-                                </div>
-                                <button class="btn btn-primary account-submit" id="account-phone-verify-code" type="submit">Verify WhatsApp number</button>
-                                <button class="account-text-button" id="account-phone-resend-code" type="button">Send another code</button>
-                            </form>
-                            <p class="account-message" id="account-phone-message" role="status" aria-live="polite" hidden></p>
-                        </div>
+                        <section class="account-contact-verification" aria-labelledby="telegram-delivery-title">
+                            <h3 id="telegram-delivery-title">Telegram delivery contact</h3>
+                            <p class="account-card-description" id="account-telegram-status" role="status" aria-live="polite">Loading Telegram link status…</p>
+                            <p class="account-card-description">Connect your Telegram chat so NexProxy can deliver assigned proxy details here. A username alone cannot receive bot messages; you must open the secure link and press Start.</p>
+                            <button class="btn btn-secondary account-submit" id="account-telegram-create-link" type="button">Create secure Telegram link</button>
+                            <a class="btn btn-primary account-submit" id="account-telegram-open-link" href="#" target="_blank" rel="noopener noreferrer" hidden>Open Telegram bot and press Start</a>
+                            <button class="btn btn-secondary account-submit" id="account-telegram-activate" type="button" hidden>Require Telegram verification for new orders</button>
+                            <p class="account-message" id="account-telegram-message" role="status" aria-live="polite" hidden></p>
+                        </section>
                     </section>
 
                     <section class="account-card" aria-labelledby="password-title">

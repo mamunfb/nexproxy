@@ -8,3 +8,9 @@ verify_jwt = false
 
 [functions.send-whatsapp-otp]
 verify_jwt = false
+
+[functions.telegram-contact]
+verify_jwt = false
+
+[functions.telegram-webhook]
+verify_jwt = false

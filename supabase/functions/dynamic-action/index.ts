@@ -133,6 +133,107 @@ async function sendOrderEmail(admin: any, order: any, eventType: OrderEmailEvent
   }
 }
 
+function safeTelegramLine(value: unknown, maxLength = 240): string {
+  return String(value ?? "").replace(/[\r\n\u0000-\u001f]/g, " ").trim().slice(0, maxLength);
+}
+
+async function sendTelegramProxyDelivery(admin: any, order: any) {
+  const botToken = Deno.env.get("TELEGRAM_BOT_TOKEN");
+  if (!botToken) return { sent: false, reason: "provider_unconfigured" };
+  let activeEventId: string | null = null;
+
+  try {
+    const { data: contact, error: contactError } = await admin
+      .from("customer_contact_methods")
+      .select("telegram_chat_id,telegram_verified_at")
+      .eq("customer_id", order.customer_id)
+      .maybeSingle();
+    if (contactError) throw contactError;
+    if (!contact?.telegram_chat_id || !contact.telegram_verified_at) return { sent: false, reason: "telegram_not_linked" };
+
+    const { data: assignment, error: assignmentError } = await admin
+      .from("proxy_assignments")
+      .select("id,proxy_nickname,proxy_number,host,port,duration_days,expires_at,status")
+      .eq("order_id", order.order_id)
+      .eq("status", "ACTIVE")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (assignmentError) throw assignmentError;
+    if (!assignment) return { sent: false, reason: "assignment_not_found" };
+
+    const eventKey = `proxy_assigned:${order.order_id}:${assignment.id}`;
+    let eventRow: any;
+    const { data: inserted, error: insertError } = await admin
+      .from("telegram_delivery_events")
+      .insert({ event_key: eventKey, order_id: order.order_id, assignment_id: assignment.id, status: "SENDING", attempts: 1 })
+      .select("id,attempts")
+      .single();
+    if (!insertError) {
+      eventRow = inserted;
+    } else if (insertError.code === "23505") {
+      const { data: existing, error: existingError } = await admin
+        .from("telegram_delivery_events")
+        .select("id,status,attempts")
+        .eq("event_key", eventKey)
+        .maybeSingle();
+      if (existingError) throw existingError;
+      if (!existing) return { sent: false, reason: "event_unavailable" };
+      if (existing.status === "SENT") return { sent: true, alreadySent: true };
+      if (existing.status === "SENDING") return { sent: false, inProgress: true };
+      if (Number(existing.attempts) >= 3) return { sent: false, reason: "retry_limit_reached" };
+      const { data: retried, error: retryError } = await admin
+        .from("telegram_delivery_events")
+        .update({ status: "SENDING", attempts: Number(existing.attempts) + 1, error_code: null, updated_at: new Date().toISOString() })
+        .eq("id", existing.id)
+        .eq("status", existing.status)
+        .select("id,attempts")
+        .maybeSingle();
+      if (retryError) throw retryError;
+      if (!retried) return { sent: false, inProgress: true };
+      eventRow = retried;
+    } else {
+      throw insertError;
+    }
+    activeEventId = eventRow.id;
+
+    const lines = [
+      "NexProxy — your proxy is ready",
+      `Order ID: ${safeTelegramLine(order.order_id, 80)}`,
+      `Proxy: ${safeTelegramLine(assignment.proxy_nickname)}`,
+      `Address: ${safeTelegramLine(assignment.proxy_number)}`,
+    ];
+    if (assignment.host) lines.push(`Host: ${safeTelegramLine(assignment.host)}`);
+    if (assignment.port) lines.push(`Port: ${safeTelegramLine(assignment.port)}`);
+    if (assignment.expires_at) lines.push(`Expires: ${safeTelegramLine(assignment.expires_at, 80)}`);
+    lines.push("Keep these connection details private. Contact NexProxy support if you need help.");
+
+    const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ chat_id: contact.telegram_chat_id, text: lines.join("\n") }),
+    });
+    const providerResult = await response.json().catch(() => null);
+    if (!response.ok || providerResult?.ok !== true) {
+      await admin.from("telegram_delivery_events").update({ status: "FAILED", error_code: `TELEGRAM_HTTP_${response.status}`, updated_at: new Date().toISOString() }).eq("id", eventRow.id);
+      console.warn("Telegram proxy delivery rejected", response.status);
+      return { sent: false, reason: "provider_rejected" };
+    }
+    const providerMessageId = Number.isSafeInteger(providerResult?.result?.message_id)
+      ? String(providerResult.result.message_id)
+      : null;
+    const { error: sentError } = await admin.from("telegram_delivery_events").update({ status: "SENT", provider_message_id: providerMessageId, error_code: null, sent_at: new Date().toISOString(), updated_at: new Date().toISOString() }).eq("id", eventRow.id);
+    if (sentError) throw sentError;
+    return { sent: true };
+  } catch (error) {
+    if (activeEventId) {
+      await admin.from("telegram_delivery_events").update({ status: "FAILED", error_code: "SEND_REQUEST_FAILED", updated_at: new Date().toISOString() }).eq("id", activeEventId);
+    }
+    console.error("Telegram proxy delivery failed", error instanceof Error ? error.name : "Error");
+    return { sent: false, reason: "provider_unavailable" };
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json(405, { success: false, error: "Method not allowed." });
@@ -212,7 +313,17 @@ Deno.serve(async (req: Request) => {
         if (!fulfillment || fulfillment.status !== "ASSIGNED" || fulfillment.proxy_assigned !== true) return json(409, { success: false, error: "Proxy service is not assigned." });
       }
       const notification = await sendOrderEmail(admin, order, eventType);
-      return json(200, { success: true, emailSent: notification.sent, alreadySent: notification.alreadySent === true, reason: notification.reason || null });
+      const telegramDelivery = eventType === "proxy_assigned"
+        ? await sendTelegramProxyDelivery(admin, order)
+        : null;
+      return json(200, {
+        success: true,
+        emailSent: notification.sent,
+        alreadySent: notification.alreadySent === true,
+        reason: notification.reason || null,
+        telegramSent: telegramDelivery?.sent === true,
+        telegramDeliveryReason: telegramDelivery?.reason || null,
+      });
     }
 
     if (action === "submit_payment") {
