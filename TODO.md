@@ -60,8 +60,9 @@
 - [x] `customer_contact_settings`, one-use hashed link tokens, verified contact mapping, idempotent delivery events এবং order insert-এর database-side verification trigger Supabase migration-এ প্রয়োগ হয়েছে। `telegram_required` default `false`।
 - [x] Account/Profile-এ 10 মিনিটের secure Telegram link, status polling ও admin activation control যোগ হয়েছে; order review-তে verification status দেখায়। Proxy details শুধু linked private chat-এ পাঠানোর code `dynamic-action`-এ যোগ হয়েছে।
 - [x] Telegram setup নির্দেশিকা তৈরি: `TELEGRAM_DELIVERY_SETUP_BN.md`।
-- [ ] Admin-এর Supabase Edge Function Secrets-এ `TELEGRAM_BOT_TOKEN` ও `TELEGRAM_BOT_USERNAME` যোগ করা বাকি। Token চ্যাট, frontend, logs বা Git-এ রাখা যাবে না।
-- [ ] BotFather token যোগ হলে admin Account/Profile থেকে bot webhook ও mandatory order verification activate করতে হবে; আগে নিজের Telegram link এবং test proxy delivery E2E পরীক্ষা করতে হবে।
+- [x] 2026-11-07-এ `TELEGRAM_BOT_TOKEN` ও `TELEGRAM_BOT_USERNAME` Supabase Edge Function Secrets-এ server-side যোগ হয়েছে; bot username `NexProxyDeliveryBot`। Secret value কোনো source file, Git বা এই status note-এ রাখা হয়নি।
+- [ ] Admin Account/Profile থেকে bot configuration যাচাই, webhook registration ও mandatory order verification activate করতে হবে। এই browser session-এ admin sign-in ছিল না; তাই activation করা হয়নি এবং `telegram_required` default `false` রাখা হয়েছে।
+- [ ] Admin-এর Telegram account linking এবং test order → test payment → admin verification → dummy proxy assignment → bot delivery E2E পরীক্ষা ও test-data cleanup বাকি।
 - [x] Telegram delivery-সহ `dynamic-action` deploy, GitHub `main` sync এবং Cloudflare Workers frontend publish হয়েছে। Live `/account/`, `/order/`, `/order/review/` ও account JS-এ Telegram UI marker HTTP 200 দিয়েছে; unauthenticated contact API HTTP 401 দিয়ে প্রত্যাখ্যান করেছে।
 
 ## WhatsApp phone OTP (inactive alternative)

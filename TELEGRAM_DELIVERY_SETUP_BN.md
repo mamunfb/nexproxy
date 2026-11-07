@@ -1,6 +1,6 @@
 # NexProxy Telegram contact ও proxy delivery — সেটআপ গাইড
 
-**কাজের অবস্থা:** ডাটাবেস migration ও দুটি Supabase Edge Function deploy করা হয়েছে। Telegram bot token এখনো Supabase-এ না থাকায় bot link, বাধ্যতামূলক যাচাই এবং delivery চালু নয়। `telegram_required` default `false`; আপনার সাইটে bot secret সেট না হওয়া পর্যন্ত নতুন অর্ডারে কোনো বাধা হবে না।
+**কাজের অবস্থা:** ডাটাবেস migration ও দুটি Supabase Edge Function deploy করা হয়েছে। `NexProxyDeliveryBot` তৈরি হয়েছে এবং `TELEGRAM_BOT_TOKEN` ও `TELEGRAM_BOT_USERNAME` Supabase Edge Function Secrets-এ server-side সংরক্ষিত। Admin-এর Account/Profile activation ও end-to-end test বাকি; `telegram_required` এখনো `false`, তাই নতুন অর্ডারে Telegram বাধ্যতামূলক নয়।
 
 ## গ্রাহক কীভাবে যুক্ত হবেন
 
@@ -11,20 +11,18 @@
 
 Order form-এর Telegram username ঐচ্ছিক support field মাত্র। Bot-এ message পাঠাতে username নয়, customer নিজে Start করে যুক্ত করা private chat-ই ব্যবহার হবে।
 
-## আপনাকে একবার যা করতে হবে
+## Bot ও secret-এর অবস্থা
 
-Telegram-এর **@BotFather**-এ গিয়ে `/newbot` পাঠিয়ে bot তৈরি করুন। Telegram যে bot token দেবে তা password-এর মতো গোপন রাখুন। Token এখানে, GitHub-এ, screenshot-এ বা সাধারণ chat-এ পাঠাবেন না।
+Bot **@NexProxyDeliveryBot** তৈরি হয়েছে এবং প্রয়োজনীয় দুইটি secret Supabase Dashboard → Project `mviohrcnkxodltwjqvyy` → **Edge Functions → Secrets**-এ যোগ করা আছে:
 
-Supabase Dashboard → Project `mviohrcnkxodltwjqvyy` → **Edge Functions → Secrets**-এ এই দুটো secret যোগ করুন:
+- `TELEGRAM_BOT_TOKEN` — server-side bot credential
+- `TELEGRAM_BOT_USERNAME` — bot-এর username, `@` ছাড়া
 
-- `TELEGRAM_BOT_TOKEN` — BotFather-এর দেওয়া bot token
-- `TELEGRAM_BOT_USERNAME` — bot-এর username, `@` ছাড়া; যেমন `nexproxy_help_bot`
-
-দুটোই server-side secret। Cloudflare Worker-এর public variables, frontend JavaScript বা database-এ রাখবেন না। Supabase secret-এ token নিজে যোগ করাই নিরাপদ পদ্ধতি।
+Secret value কোনো chat, screenshot, source file, GitHub, Cloudflare public variable, frontend JavaScript বা database-এ কপি করবেন না। Token বদলালে শুধু Supabase Edge Function Secrets-এ নতুন value দিন।
 
 ## চালু করা
 
-Secrets save হওয়ার পর NexProxy-তে admin account `mamunfb13@gmail.com` দিয়ে sign in করুন এবং Account/Profile-এ যান। Bot configuration ঠিক থাকলে **Require Telegram verification for new orders** বোতামটি সক্রিয় হবে। সেটি চাপলে backend BotFather username-token জুটি যাচাই করে Telegram webhook নিবন্ধন করবে, তারপর order-এর database-side বাধা চালু করবে।
+NexProxy-তে admin account `mamunfb13@gmail.com` দিয়ে sign in করুন এবং Account/Profile-এ যান। Bot configuration ঠিক থাকলে **Require Telegram verification for new orders** বোতামটি সক্রিয় হবে। সেটি চাপলে backend BotFather username-token জুটি যাচাই করে Telegram webhook নিবন্ধন করবে, তারপর order-এর database-side বাধা চালু করবে। এই session-এ admin sign-in ছিল না, তাই activation এখনো করা হয়নি।
 
 চালুর পরে customer-এর নতুন order Telegram verified না হলে database-এ সংরক্ষিত হবে না। Admin যেন আগে নিজের Telegram account-ও link করে পরীক্ষা করেন।
 
