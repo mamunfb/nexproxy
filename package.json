@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "check": "node --check server.js && node --check cloudflare/worker.mjs",
+    "test": "node --test tests/support-chat-attachment-validation.test.mjs tests/support-chat-cleanup.test.mjs",
     "cloudflare:dev": "wrangler dev",
     "cloudflare:deploy": "wrangler deploy"
   },

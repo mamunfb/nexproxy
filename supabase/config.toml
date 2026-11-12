@@ -14,3 +14,9 @@ verify_jwt = false
 
 [functions.telegram-webhook]
 verify_jwt = false
+
+[functions.support-chat]
+verify_jwt = false
+
+[functions.support-chat-cleanup]
+verify_jwt = false

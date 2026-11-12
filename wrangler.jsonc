@@ -6,6 +6,15 @@
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "directory": "./public",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "vars": {
+    "SUPPORT_CHAT_CLEANUP_URL": "https://mviohrcnkxodltwjqvyy.supabase.co/functions/v1/support-chat-cleanup",
+    "SUPPORT_CHAT_CLEANUP_ENABLED": "false",
+    "NEXPROXY_LIVE_CHAT_ENABLED": "false"
+  },
+  "triggers": {
+    "crons": ["* * * * *"]
   }
 }

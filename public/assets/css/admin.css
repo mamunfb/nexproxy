@@ -210,6 +210,11 @@ p {
     margin-bottom: 18px;
 }
 
+#admin-login-form .np-auth-captcha {
+    min-height: 66px;
+    margin-bottom: 18px;
+}
+
 .admin-form-group label {
     display: block;
 
@@ -1292,4 +1297,187 @@ p {
 
 .admin-ip-location-link {
     margin-top: 12px;
+}
+
+
+/* =========================================================
+   SUPPORT CHAT INBOX
+   ========================================================= */
+
+.support-chat-admin-layout {
+    display: grid;
+    grid-template-columns: minmax(250px, 320px) minmax(0, 1fr);
+    min-height: 520px;
+    overflow: hidden;
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: var(--admin-radius-md);
+    box-shadow: var(--admin-shadow-sm);
+}
+
+.support-chat-inbox {
+    min-width: 0;
+    border-right: 1px solid var(--admin-border);
+    background: var(--admin-surface-soft);
+}
+
+.support-chat-inbox-title {
+    margin: 0;
+    padding: 16px;
+    border-bottom: 1px solid var(--admin-border);
+    font-size: 14px;
+}
+
+.support-chat-thread-list {
+    max-height: 650px;
+    overflow-y: auto;
+}
+
+.support-chat-thread {
+    display: block;
+    width: 100%;
+    padding: 14px 16px;
+    border: 0;
+    border-bottom: 1px solid var(--admin-border);
+    color: var(--admin-text);
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+}
+
+.support-chat-thread:hover,
+.support-chat-thread[aria-current="true"] {
+    background: var(--admin-primary-soft);
+}
+
+.support-chat-thread:focus-visible,
+.support-chat-status-form select:focus-visible,
+.support-chat-reply-form textarea:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.32);
+    outline-offset: -2px;
+}
+
+.support-chat-thread-top,
+.support-chat-thread-meta,
+.support-chat-thread-date {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.support-chat-thread-top strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.support-chat-unread {
+    flex: 0 0 auto;
+    padding: 2px 7px;
+    border-radius: 999px;
+    color: #fff;
+    background: var(--admin-primary);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.support-chat-thread-meta,
+.support-chat-thread-date {
+    margin-top: 5px;
+    color: var(--admin-text-soft);
+    font-size: 11px;
+    overflow-wrap: anywhere;
+}
+
+.support-chat-workspace { display: flex; min-width: 0; flex-direction: column; }
+.support-chat-workspace-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px;
+    border-bottom: 1px solid var(--admin-border);
+}
+
+.support-chat-workspace-header h3 { margin: 0 0 3px; font-size: 15px; overflow-wrap: anywhere; }
+.support-chat-workspace-header p { margin: 0; color: var(--admin-text-soft); font-size: 11px; overflow-wrap: anywhere; }
+.support-chat-status-form { display: flex; align-items: center; gap: 8px; }
+.support-chat-status-form label { color: var(--admin-text-soft); font-size: 12px; }
+.support-chat-status-form .admin-select { width: auto; min-width: 112px; min-height: 38px; }
+.support-chat-status-form .admin-btn { min-height: 38px; }
+
+.support-chat-messages {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 230px;
+    max-height: 520px;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    padding: 18px;
+    background: #f8fafc;
+}
+
+.support-chat-message {
+    width: fit-content;
+    max-width: min(88%, 720px);
+    padding: 11px 13px;
+    border: 1px solid var(--admin-border);
+    border-radius: 11px;
+    background: #fff;
+    overflow-wrap: anywhere;
+}
+
+.support-chat-message.is-admin { align-self: flex-end; border-color: #c9ddff; background: var(--admin-primary-soft); }
+.support-chat-message-sender { display: block; margin-bottom: 5px; color: var(--admin-text-soft); font-size: 11px; }
+.support-chat-message-body { margin: 0; white-space: pre-wrap; }
+.support-chat-message-time { display: block; margin-top: 8px; color: var(--admin-text-muted); font-size: 10px; }
+.support-chat-attachment { display: grid; gap: 6px; margin-top: 9px; font-size: 12px; }
+.support-chat-attachment-name { color: var(--admin-text-soft); overflow-wrap: anywhere; }
+.support-chat-attachment-preview { display: block; max-width: min(100%, 480px); max-height: 260px; border-radius: var(--admin-radius-sm); object-fit: contain; }
+.support-chat-attachment-link { width: fit-content; color: var(--admin-primary-dark); text-decoration: underline; }
+.support-chat-attachment-expired { color: var(--admin-text-soft); font-size: 11px; }
+
+.support-chat-reply-form { padding: 14px 16px; border-top: 1px solid var(--admin-border); }
+.support-chat-reply-form > label { display: block; margin-bottom: 6px; font-weight: 650; }
+.support-chat-reply-form textarea {
+    width: 100%;
+    min-height: 78px;
+    padding: 10px 12px;
+    border: 1px solid var(--admin-border-strong);
+    border-radius: var(--admin-radius-sm);
+    color: var(--admin-text);
+    font: inherit;
+    resize: vertical;
+}
+.support-chat-reply-form input[type="file"] {
+    display: block;
+    width: 100%;
+    margin-bottom: 6px;
+    padding: 8px;
+    border: 1px solid var(--admin-border-strong);
+    border-radius: var(--admin-radius-sm);
+    color: var(--admin-text-soft);
+    background: var(--admin-surface-soft);
+    font-size: 12px;
+}
+.support-chat-upload-status { min-height: 18px; margin: 6px 0; font-size: 12px; }
+.support-chat-upload-status[data-kind="error"] { color: var(--admin-danger); }
+
+.support-chat-reply-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
+.support-chat-reply-footer .admin-help-text { margin: 0; }
+
+@media (max-width: 800px) {
+    .support-chat-admin-layout { grid-template-columns: 1fr; }
+    .support-chat-inbox { border-right: 0; border-bottom: 1px solid var(--admin-border); }
+    .support-chat-thread-list { max-height: 220px; }
+    .support-chat-workspace-header { align-items: flex-start; flex-direction: column; }
+    .support-chat-status-form { flex-wrap: wrap; }
+}
+
+@media (max-width: 560px) {
+    .support-chat-message { max-width: 96%; }
+    .support-chat-reply-footer { align-items: stretch; flex-direction: column; }
+    .support-chat-reply-footer .admin-btn { width: 100%; }
 }

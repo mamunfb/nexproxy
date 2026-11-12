@@ -81,6 +81,11 @@
     gap: 18px;
 }
 
+.np-auth-captcha {
+    min-height: 66px;
+    margin: 0 0 4px;
+}
+
 .account-field {
     display: grid;
     gap: 7px;

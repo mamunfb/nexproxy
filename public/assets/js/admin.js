@@ -288,7 +288,8 @@ async function getCurrentAdminSession() {
  */
 async function signInAdmin(
     email,
-    password
+    password,
+    captchaToken
 ) {
     const supabase =
         initializeAdminSupabase();
@@ -298,7 +299,8 @@ async function signInAdmin(
         error
     } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
+        options: captchaToken ? { captchaToken } : {}
     });
 
     if (error) {
@@ -327,6 +329,7 @@ async function signOutAdmin() {
     adminState.session = null;
     adminState.user = null;
     adminState.isAdmin = false;
+    window.NexProxyChatAdmin?.stop();
 }
 
 
@@ -481,10 +484,12 @@ function initAdminLoginForm() {
             }
 
             try {
+                const captchaToken = await window.NexProxyAuthCaptcha.getToken(form);
                 const session =
                     await signInAdmin(
                         email,
-                        password
+                        password,
+                        captchaToken
                     );
 
                 adminState.session =
@@ -523,6 +528,7 @@ function initAdminLoginForm() {
                 showAdminDashboard();
 
                 await initializeAdminDashboard();
+                initializeAdminSupportChats();
 
             } catch (error) {
                 console.error(
@@ -712,6 +718,7 @@ function initAdminAuthListener() {
                 adminState.session = null;
                 adminState.user = null;
                 adminState.isAdmin = false;
+                window.NexProxyChatAdmin?.stop();
 
                 showAdminLogin();
 
@@ -753,6 +760,7 @@ function initAdminAuthListener() {
                     updateCurrentAdminDisplay();
 
                     showAdminDashboard();
+                    initializeAdminSupportChats();
 
                 } catch (error) {
                     console.error(
@@ -817,6 +825,21 @@ async function initializeAdminDashboard() {
             "Unable to load customer data."
         );
     }
+}
+
+
+/**
+ * Start the chat inbox only after database-side admin verification.
+ */
+function initializeAdminSupportChats() {
+    if (!adminState.isAdmin || !adminState.session || !adminState.supabase) {
+        return;
+    }
+
+    window.NexProxyChatAdmin?.init({
+        supabase: adminState.supabase,
+        session: adminState.session
+    });
 }
 
 /* =========================================================
@@ -6002,6 +6025,7 @@ async function initializeAdminApplication() {
         showAdminDashboard();
 
         await initializeAdminDashboard();
+        initializeAdminSupportChats();
 
     } catch (error) {
         console.error(

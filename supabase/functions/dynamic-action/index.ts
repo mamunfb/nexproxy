@@ -234,6 +234,19 @@ async function sendTelegramProxyDelivery(admin: any, order: any) {
   }
 }
 
+function isAnonymousAuthUser(token: string, user: any): boolean {
+  if (user?.is_anonymous === true || user?.app_metadata?.provider === "anonymous") return true;
+  try {
+    const segment = token.split(".")[1];
+    if (!segment) return false;
+    const normalized = segment.replace(/-/g, "+").replace(/_/g, "/");
+    const claims = JSON.parse(atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=")));
+    return claims?.is_anonymous === true;
+  } catch {
+    return false;
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json(405, { success: false, error: "Method not allowed." });
@@ -250,6 +263,7 @@ Deno.serve(async (req: Request) => {
     if (!token) throw new Error("Sign in is required.");
     const { data, error } = await admin.auth.getUser(token);
     if (error || !data.user) throw new Error("Your session is invalid or expired.");
+    if (isAnonymousAuthUser(token, data.user)) throw new Error("Anonymous chat users cannot perform account or payment actions.");
     return data.user;
   }
 
@@ -360,7 +374,7 @@ Deno.serve(async (req: Request) => {
   } catch (error) {
     console.error("dynamic-action error", error);
     const message = error instanceof Error ? error.message : "Request failed.";
-    const status = /sign in|session is invalid/i.test(message) ? 401 : 500;
+    const status = /anonymous chat users/i.test(message) ? 403 : /sign in|session is invalid/i.test(message) ? 401 : 500;
     return json(status, { success: false, error: message });
   }
 });

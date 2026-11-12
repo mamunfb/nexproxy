@@ -362,9 +362,11 @@ function bindAccountForms() {
         setSubmitState(button, true, "Signing in…", "Sign in");
 
         try {
+            const captchaToken = await window.NexProxyAuthCaptcha.getToken(form);
             const { data, error } = await accountState.client.auth.signInWithPassword({
                 email: values.email.trim(),
-                password: values.password
+                password: values.password,
+                options: captchaToken ? { captchaToken } : {}
             });
             if (error) throw error;
             const user = data.user || data.session?.user;
@@ -388,11 +390,13 @@ function bindAccountForms() {
         setSubmitState(button, true, "Creating account…", "Create account");
 
         try {
+            const captchaToken = await window.NexProxyAuthCaptcha.getToken(form);
             const { data, error } = await accountState.client.auth.signUp({
                 email: values.email.trim(),
                 password: values.password,
                 options: {
-                        emailRedirectTo: getAuthRedirectUrl(),
+                    ...(captchaToken ? { captchaToken } : {}),
+                    emailRedirectTo: getAuthRedirectUrl(),
                     data: { full_name: values.full_name.trim() }
                 }
             });
@@ -427,9 +431,10 @@ function bindAccountForms() {
         setSubmitState(button, true, "Sending…", "Send reset link");
 
         try {
+            const captchaToken = await window.NexProxyAuthCaptcha.getToken(form);
             const { error } = await accountState.client.auth.resetPasswordForEmail(
                 values.email.trim(),
-                { redirectTo: getAccountRedirectUrl() }
+                { redirectTo: getAccountRedirectUrl(), ...(captchaToken ? { captchaToken } : {}) }
             );
             if (error) throw error;
             setMessage(

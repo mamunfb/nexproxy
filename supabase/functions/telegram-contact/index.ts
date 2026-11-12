@@ -21,6 +21,19 @@ async function sha256(value: string): Promise<string> {
   return hex(new Uint8Array(digest));
 }
 
+function isAnonymousAuthUser(token: string, user: any): boolean {
+  if (user?.is_anonymous === true || user?.app_metadata?.provider === "anonymous") return true;
+  try {
+    const segment = token.split(".")[1];
+    if (!segment) return false;
+    const normalized = segment.replace(/-/g, "+").replace(/_/g, "/");
+    const claims = JSON.parse(atob(normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=")));
+    return claims?.is_anonymous === true;
+  } catch {
+    return false;
+  }
+}
+
 function getTelegramConfig() {
   const token = Deno.env.get("TELEGRAM_BOT_TOKEN") || "";
   const username = (Deno.env.get("TELEGRAM_BOT_USERNAME") || "").replace(/^@/, "");
@@ -76,6 +89,9 @@ Deno.serve(async (req: Request) => {
     const user = authData.user;
     const body = await req.json().catch(() => ({}));
     const action = String(body?.action || "status");
+    if ((action === "status" || action === "create_link") && isAnonymousAuthUser(jwt, user)) {
+      return json(403, { success: false, error: "Anonymous chat users cannot manage account contact settings." });
+    }
 
     if (action === "status") {
       const [{ data: setting, error: settingError }, { data: contact, error: contactError }] = await Promise.all([

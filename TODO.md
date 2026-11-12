@@ -42,7 +42,7 @@
 - [x] Transactional-only Brevo API key, verified sender `mamunfb13@gmail.com`, এবং `SEND_EMAIL_HOOK_SECRET` Supabase Edge Function Secrets-এ সংরক্ষিত; 2026-11-04 23:23 UTC-এ Auth Hook ও Edge Function secret নতুন করে rotate করে fingerprint মিলিয়ে যাচাই করা হয়েছে। কোনো value source code বা Git-এ নেই।
 - [x] Brevo API-key IP blocking বন্ধ; SMTP IP blocking চালু রাখা হয়েছে। NexProxy শুধু server-side Brevo REST API ব্যবহার করে।
 - [x] Supabase Send Email Auth Hook সক্রিয় এবং `send-auth-email` function deploy করা হয়েছে; নতুন signing key দুই জায়গায় সমান। Signup confirmation-এ welcome copy, password recovery, sign-in/OTP ও অন্যান্য Auth notice hook দিয়ে পাঠানো হয়।
-- [x] Supabase dashboard নিশ্চিত করেছে: Send Email Hook সক্রিয় থাকলে built-in Auth templates ব্যবহার হয় না; তাই ওই templates আলাদা করে সম্পাদনা প্রয়োজন হয়নি।
+- [x] Supabase dashboard নিশ্চিত করেছে: Send Email Hook সক্রিয় থাকলে built-in Auth templates ব্যবহার হয়; তাই ওই templates আলাদা করে সম্পাদনা প্রয়োজন হয়নি।
 - [x] অর্ডার receipt, payment submitted, payment verified এবং proxy assigned-এর fixed Bengali/English notification যুক্ত; recipient আসে confirmed Supabase account থেকে, caller থেকে নয়।
 - [x] `transactional_email_events` private deduplication table যোগ; customer/admin authorization server-এ যাচাই হয়, email-এ proxy credential বা payment proof অন্তর্ভুক্ত হয় না।
 - [x] Updated `dynamic-action` ও `send-auth-email` deploy; unauthenticated order-email request 401 দিয়েছে, এবং function endpoints active আছে।
@@ -61,11 +61,19 @@
 - [x] Account/Profile-এ 10 মিনিটের secure Telegram link, status polling ও admin activation control যোগ হয়েছে; order review-তে verification status দেখায়। Proxy details শুধু linked private chat-এ পাঠানোর code `dynamic-action`-এ যোগ হয়েছে।
 - [x] Telegram setup নির্দেশিকা তৈরি: `TELEGRAM_DELIVERY_SETUP_BN.md`।
 - [x] 2026-11-07-এ `TELEGRAM_BOT_TOKEN` ও `TELEGRAM_BOT_USERNAME` Supabase Edge Function Secrets-এ server-side যোগ হয়েছে; bot username `NexProxyDeliveryBot`। Secret value কোনো source file, Git বা এই status note-এ রাখা হয়নি।
-- [ ] Admin Account/Profile থেকে bot configuration যাচাই, webhook registration ও mandatory order verification activate করতে হবে। এই browser session-এ admin sign-in ছিল না; তাই activation করা হয়নি এবং `telegram_required` default `false` রাখা হয়েছে।
-- [ ] Admin-এর Telegram account linking এবং test order → test payment → admin verification → dummy proxy assignment → bot delivery E2E পরীক্ষা ও test-data cleanup বাকি।
+- [x] 2026-11-08-এ admin Telegram chat linked/verified; `telegram-webhook`-এ চারটি HTTP 200 request দেখা হয়েছে; user অনুমোদনের পর webhook পুনরায় setup এবং `telegram_required=true` activate করা হয়েছে।
+- [ ] Test order → test payment → admin verification → dummy proxy assignment → bot delivery E2E পরীক্ষা ও test-data cleanup বাকি।
 - [x] Telegram delivery-সহ `dynamic-action` deploy, GitHub `main` sync এবং Cloudflare Workers frontend publish হয়েছে। Live `/account/`, `/order/`, `/order/review/` ও account JS-এ Telegram UI marker HTTP 200 দিয়েছে; unauthenticated contact API HTTP 401 দিয়ে প্রত্যাখ্যান করেছে।
 
-## WhatsApp phone OTP (inactive alternative)
+## NexProxy site live chat ও one-hour attachments
+- [x] `feature/live-chat`-এ token/polling + optional Realtime chat, admin inbox, private attachment flow, cleanup এবং anonymous-order guards implement করা হয়েছে। Support-chat schema ও Edge Functions, `dynamic-action`/`telegram-contact` anonymous guards, Turnstile keys, cleanup secret এবং ACL fix production-এ প্রয়োগ হয়েছে; সব public business tables-এ RLS চালু এবং local cleanup/attachment tests 10/10 পাস। User rollout approval ও security-guard condition পূরণ হয়েছে।
+- [x] Customer-side files, admin inbox markup, shared Auth CAPTCHA helper, polling/realtime client, 20 MB MIME/signature validation, private-storage policy, 60-minute TTL/purge retry এবং Worker asset-injection code স্থানীয় branch-এ প্রস্তুত। Source secret scan ও `git diff --check` পাস।
+- [x] Worker static assets এখনও publish হয়নি: live `/assets/js/auth-captcha.js` ও `/assets/js/live-chat.js` 404; বর্তমান site-এ chat widget নেই। Live Worker-এ 1-minute Cron/cleanup enablement ও `run_worker_first: true` এখনও প্রয়োগ হয়নি।
+- [x] Supabase CAPTCHA protection এবং Anonymous Sign-ins rollout চলাকালে পরীক্ষা করে চালু করা হয়েছিল, কিন্তু frontend publish না থাকায় production Auth flow ও অনাবশ্যক anonymous account creation ঝুঁকি এড়াতে দুটোই সাময়িকভাবে OFF করা হয়েছে। Client flags `NEXPROXY_LIVE_CHAT_ENABLED`, `NEXPROXY_AUTH_CAPTCHA_ENABLED`, `NEXPROXY_SUPPORT_CHAT_REALTIME_ENABLED` false রাখা হয়েছে; cleanup/Realtime-ও dormant।
+- [ ] Cloudflare deployment authorization human-verification challenge-এ আটকে আছে; Wrangler code পাঁচ মিনিটে মেয়াদোত্তীর্ণ হয়েছে। User নিজের Chrome/Firefox-এ verification পেজ খুলে CAPTCHA পার হওয়ার পর “ready” জানালে তখনই নতুন code তৈরি করতে হবে।
+- [ ] Worker static assets ও `run_worker_first: true` publish; তারপর dedicated test visitor এবং test admin session দিয়ে polling message/reply/upload, file size/type checks, one-hour access cutoff ও physical cleanup E2E যাচাই। Production customer message/file দিয়ে পরীক্ষা নয়।
+- [ ] Polling smoke test ও cleanup verification পাস হলে Realtime, Anonymous Sign-ins, Auth CAPTCHA এবং authenticated 1-minute cleanup Cron ধাপে ধাপে enable করে live status যাচাই। `payment-proofs` অপরিবর্তিত থাকবে; chat text থাকবে, attachment expiry-তে “Attachment expired” marker থাকবে।
 
+## WhatsApp phone OTP (inactive alternative)
 - [x] পুরনো Twilio Send SMS Hook scaffold deploy হয়েছে, কিন্তু Phone Auth/SMS Hook configuration এখনো disabled; frontend account UI থেকে WhatsApp OTP সরিয়ে দেওয়া হয়েছে।
 - [ ] এই task-এ Telegram-ই মূল verified delivery channel। WhatsApp বিকল্প চালু করতে চাইলে পরে আলাদা করে Twilio sender/template, secrets এবং E2E configure করতে হবে।

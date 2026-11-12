@@ -211,6 +211,13 @@
                         class="admin-current-user"
                     ></span>
 
+                    <a
+                        class="admin-btn admin-btn-secondary"
+                        href="#admin-support-chats-section"
+                    >
+                        Support Chats
+                    </a>
+
                     <button
                         type="button"
                         class="admin-btn admin-btn-secondary"
@@ -368,6 +375,72 @@
 
                     </div>
 
+                </section>
+
+
+                <!-- =============================================
+                     SUPPORT CHAT INBOX
+                     ============================================= -->
+
+                <section
+                    class="admin-section"
+                    id="admin-support-chats-section"
+                    aria-labelledby="support-chat-heading"
+                >
+                    <div class="admin-section-heading">
+                        <div>
+                            <p class="admin-eyebrow">Customer Support</p>
+                            <h2 id="support-chat-heading">Support Chats</h2>
+                        </div>
+                        <button type="button" class="admin-btn admin-btn-secondary" id="support-chat-refresh">
+                            Refresh conversations
+                        </button>
+                    </div>
+
+                    <p id="support-chat-admin-status" class="admin-form-message" role="status" aria-live="polite"></p>
+
+                    <div class="support-chat-admin-layout">
+                        <aside class="support-chat-inbox" aria-label="Support conversations">
+                            <h3 class="support-chat-inbox-title">Conversations</h3>
+                            <div id="support-chat-thread-list" class="support-chat-thread-list" role="group" aria-label="Conversation list">
+                                <p class="admin-loading-state">Loading conversations…</p>
+                            </div>
+                        </aside>
+
+                        <div class="support-chat-workspace">
+                            <header class="support-chat-workspace-header">
+                                <div>
+                                    <h3 id="support-chat-selected-title">Select a conversation</h3>
+                                    <p id="support-chat-selected-meta">Choose a conversation to view messages.</p>
+                                </div>
+                                <form id="support-chat-status-form" class="support-chat-status-form">
+                                    <label for="support-chat-status-select">Status</label>
+                                    <select id="support-chat-status-select" class="admin-select">
+                                        <option value="open">Open</option>
+                                        <option value="resolved">Resolved</option>
+                                    </select>
+                                    <button type="submit" class="admin-btn admin-btn-secondary" id="support-chat-status-save">Save</button>
+                                </form>
+                            </header>
+
+                            <div id="support-chat-messages" class="support-chat-messages" role="log" aria-live="polite" aria-relevant="additions text">
+                                <p class="admin-empty-state">Messages will appear here.</p>
+                            </div>
+
+                            <form id="support-chat-reply-form" class="support-chat-reply-form">
+                                <label for="support-chat-reply">Reply</label>
+                                <textarea id="support-chat-reply" rows="3" maxlength="4000" placeholder="Write a reply…" aria-describedby="support-chat-reply-help"></textarea>
+                                <label for="support-chat-files">Attach files (up to 5, 20 MB each)</label>
+                                <input id="support-chat-files" type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime,application/pdf,text/plain,text/csv,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" aria-describedby="support-chat-file-help support-chat-upload-status">
+                                <p id="support-chat-file-help" class="admin-help-text">Attachments are deleted after one hour. Chat message text remains in the support history.</p>
+                                <p id="support-chat-upload-status" class="admin-form-message" role="status" aria-live="polite"></p>
+                                <div class="support-chat-reply-footer">
+                                    <span id="support-chat-reply-help" class="admin-help-text">Up to 4,000 characters. Choose files to explain an issue or show a screenshot.</span>
+                                    <button type="submit" class="admin-btn admin-btn-primary" id="support-chat-send">Send reply</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </section>
 
 
@@ -2059,11 +2132,19 @@
     ></script>
 
     <script
+        src="../assets/js/auth-captcha.js"
+        defer
+    ></script>
+    <script
         src="../assets/js/admin.js"
         defer
     ></script>
     <script
         src="../assets/js/blog-admin.js"
+        defer
+    ></script>
+    <script
+        src="../assets/js/chat-admin.js"
         defer
     ></script>
 
