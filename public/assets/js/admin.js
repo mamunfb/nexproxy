@@ -832,10 +832,16 @@ async function initializeAdminDashboard() {
  * Start the chat inbox only after database-side admin verification.
  */
 function initializeAdminSupportChats() {
+    if (window.NEXPROXY_LIVE_CHAT_ENABLED !== true) {
+        window.NexProxyChatAdmin?.stop();
+        return;
+    }
+
     if (!adminState.isAdmin || !adminState.session || !adminState.supabase) {
         return;
     }
 
+    document.getElementById("admin-support-chats-section")?.removeAttribute("hidden");
     window.NexProxyChatAdmin?.init({
         supabase: adminState.supabase,
         session: adminState.session

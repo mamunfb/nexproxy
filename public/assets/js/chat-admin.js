@@ -438,6 +438,7 @@
         state.session = null;
         state.initialized = false;
         state.currentThreadId = "";
+        byId("admin-support-chats-section")?.setAttribute("hidden", "");
     }
 
     window.NexProxyChatAdmin = { init, stop };
