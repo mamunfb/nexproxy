@@ -11,8 +11,8 @@
   },
   "vars": {
     "SUPPORT_CHAT_CLEANUP_URL": "https://mviohrcnkxodltwjqvyy.supabase.co/functions/v1/support-chat-cleanup",
-    "SUPPORT_CHAT_CLEANUP_ENABLED": "false",
-    "NEXPROXY_LIVE_CHAT_ENABLED": "false"
+    "SUPPORT_CHAT_CLEANUP_ENABLED": "true",
+    "NEXPROXY_LIVE_CHAT_ENABLED": "true"
   },
   "triggers": {
     "crons": ["* * * * *"]
