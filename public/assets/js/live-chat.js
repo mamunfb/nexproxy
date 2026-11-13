@@ -6,6 +6,8 @@
 
     const TOKEN_KEY = "nexproxy_support_chat_visitor_v1";
     const VISITOR_KEY = "nexproxy_support_chat_visitor_id_v1";
+    const POSITION_KEY = "nexproxy_support_chat_corner_v1";
+    const CHAT_CORNERS = ["top-left", "top-right", "bottom-left", "bottom-right"];
     const MAX_FILES = 5;
     const MAX_FILE_BYTES = 20 * 1024 * 1024;
     const MAX_TEXT_LENGTH = 4000;
@@ -98,11 +100,11 @@
     }
 
     function renderWidget() {
-        const launcher = element("button", "np-chat-launcher", "Chat with NexProxy");
+        const launcher = element("button", "np-chat-launcher", "Live Chat");
         launcher.type = "button";
         launcher.setAttribute("aria-expanded", "false");
         launcher.setAttribute("aria-controls", "np-chat-panel");
-        launcher.setAttribute("aria-label", "Open NexProxy support chat");
+        launcher.setAttribute("aria-label", "Open NexProxy live chat. Drag to move it between corners.");
 
         const panel = element("section", "np-chat-panel np-chat-hidden");
         panel.id = "np-chat-panel";
@@ -110,6 +112,14 @@
         panel.setAttribute("aria-hidden", "true");
         panel.setAttribute("role", "dialog");
         panel.setAttribute("aria-modal", "false");
+        let initialCorner = "bottom-right";
+        try {
+            const savedCorner = localStorage.getItem(POSITION_KEY);
+            if (CHAT_CORNERS.includes(savedCorner)) initialCorner = savedCorner;
+        } catch (_) { /* use the default corner when storage is unavailable */ }
+        launcher.dataset.corner = initialCorner;
+        panel.dataset.corner = initialCorner;
+        launcher.title = "Drag to move the chat button to another corner. Use arrow keys to reposition.";
 
         const header = element("header", "np-chat-header");
         const titleBlock = element("div");
@@ -185,7 +195,79 @@
         panel.append(header, notice, privacy, visitorForm, conversation);
         document.body.append(launcher, panel);
 
-        launcher.addEventListener("click", () => setOpen(!state.open));
+        const setCorner = (corner) => {
+            if (!CHAT_CORNERS.includes(corner)) return;
+            launcher.dataset.corner = corner;
+            panel.dataset.corner = corner;
+            launcher.style.left = "";
+            launcher.style.right = "";
+            launcher.style.top = "";
+            launcher.style.bottom = "";
+            try { localStorage.setItem(POSITION_KEY, corner); } catch (_) { /* positioning still works for this page */ }
+        };
+        let drag = null;
+        let suppressClick = false;
+        launcher.addEventListener("pointerdown", (event) => {
+            if (event.isPrimary === false || (event.pointerType === "mouse" && event.button !== 0)) return;
+            const rect = launcher.getBoundingClientRect();
+            drag = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, left: rect.left, top: rect.top, moved: false };
+            try { launcher.setPointerCapture(event.pointerId); } catch (_) { /* pointer capture is optional */ }
+        });
+        launcher.addEventListener("pointermove", (event) => {
+            if (!drag || drag.pointerId !== event.pointerId) return;
+            const dx = event.clientX - drag.startX;
+            const dy = event.clientY - drag.startY;
+            if (!drag.moved && Math.hypot(dx, dy) < 8) return;
+            drag.moved = true;
+            launcher.classList.add("np-chat-dragging");
+            const rect = launcher.getBoundingClientRect();
+            const maxLeft = Math.max(8, window.innerWidth - rect.width - 8);
+            const maxTop = Math.max(8, window.innerHeight - rect.height - 8);
+            launcher.style.left = `${Math.max(8, Math.min(maxLeft, drag.left + dx))}px`;
+            launcher.style.top = `${Math.max(8, Math.min(maxTop, drag.top + dy))}px`;
+            launcher.style.right = "auto";
+            launcher.style.bottom = "auto";
+            event.preventDefault();
+        });
+        const finishDrag = (event) => {
+            if (!drag || drag.pointerId !== event.pointerId) return;
+            const currentDrag = drag;
+            drag = null;
+            launcher.classList.remove("np-chat-dragging");
+            if (currentDrag.moved) {
+                const vertical = event.clientY < window.innerHeight / 2 ? "top" : "bottom";
+                const horizontal = event.clientX < window.innerWidth / 2 ? "left" : "right";
+                setCorner(`${vertical}-${horizontal}`);
+                suppressClick = true;
+                window.setTimeout(() => { suppressClick = false; }, 0);
+            }
+            try {
+                if (launcher.hasPointerCapture(event.pointerId)) launcher.releasePointerCapture(event.pointerId);
+            } catch (_) { /* pointer capture may already be released */ }
+        };
+        launcher.addEventListener("pointerup", finishDrag);
+        launcher.addEventListener("pointercancel", finishDrag);
+        launcher.addEventListener("click", (event) => {
+            if (suppressClick) {
+                event.preventDefault();
+                suppressClick = false;
+                return;
+            }
+            setOpen(!state.open);
+        });
+        launcher.addEventListener("keydown", (event) => {
+            if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+            const [vertical, horizontal] = launcher.dataset.corner.split("-");
+            let nextCorner = launcher.dataset.corner;
+            if (event.key === "ArrowLeft") nextCorner = `${vertical}-left`;
+            if (event.key === "ArrowRight") nextCorner = `${vertical}-right`;
+            if (event.key === "ArrowUp") nextCorner = `top-${horizontal}`;
+            if (event.key === "ArrowDown") nextCorner = `bottom-${horizontal}`;
+            if (nextCorner !== launcher.dataset.corner) {
+                event.preventDefault();
+                setCorner(nextCorner);
+            }
+        });
         close.addEventListener("click", () => setOpen(false));
         visitorForm.addEventListener("submit", (event) => event.preventDefault());
         compose.addEventListener("submit", onSend);
