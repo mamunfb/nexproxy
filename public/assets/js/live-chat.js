@@ -155,7 +155,7 @@
         messages.setAttribute("aria-live", "polite");
         messages.setAttribute("aria-relevant", "additions text");
         const compose = element("form", "np-chat-compose");
-        const messageLabel = element("label", "np-chat-sr-only", "Your message");
+        const messageLabel = element("label", "np-chat-message-label", "Your message");
         const message = element("textarea");
         message.name = "message";
         message.rows = 3;
